@@ -5,9 +5,14 @@ Project A: Generative Creatures
 CCLaboratories Biodiversity Atlas 
 */
 
+/*
+// canvas区别
+let canvas = createCanvas(800, 500);
+canvas.parent("p5-canvas-container");
+*/
 
-// 需要编写creature2离场动画和相撞时的爆炸特效
-// 只有一个生物会吃到food并变色，3/5修不到
+// 需要编写creature2离场动画，creature2show好像有bug
+// 添加相撞时爆炸特效
 
 let s = 25; // 背景切分正方形边长
 let delx; // x向斜线间隔
@@ -32,7 +37,10 @@ let observe = true;
 let feed = false;
 let feedClicked = false;
 let foodPlaced = false;
+let feed1 = false; // creature 1吃到食物
+let feed2 = false; // creature 2吃到食物
 let call = false;
+let leave = false;
 
 // bump
 let beforeBump = false; // 互冲boolean
@@ -40,7 +48,11 @@ let bump = false;
 let bumped = false;
 let bumpCounter = 0;
 let bumpTime; // 记录碰撞millis()
-let bumpSpeed = 0.001;
+let bumpSpeed = 0.0005;
+
+let bumpX, bumpY; // 碰撞点
+let bumpDeg = 0; // 碰撞时slash最大旋转角度
+let lerpDeg = 0; // 碰撞时slash实时旋转角度
 
 // food
 let foodX = 25;
@@ -59,6 +71,9 @@ let callY = 470;
 let callH;
 let callA = 1;
 let callD = 20;
+
+// leave
+let leaveTime;
 
 // creature 1
 let circleX1, circleY1; // 生物位置
@@ -87,16 +102,14 @@ let aboveFeed;
 let aboveCall;
 
 function setup() {
-    // canvas区别
     let canvas = createCanvas(800, 500);
     canvas.parent("p5-canvas-container");
-
     frameRate(60);
     colorMode(HSB);
     delx = random(20, 25);
     dely = random(25, 30);
 
-    ranH = random(180, 210);
+    ranH = random(180, 200);
 
     rotateRad = random(1, 4) / 12;
 
@@ -125,8 +138,11 @@ function mousePressed() {
         pressX < 50 &&
         pressY > 410 &&
         pressY < 445 &&
+        feed == false &&
+        (feedCounter == 0 || (feedCounter > 0 && millis() - fedTime > 5000)) &&
         call == false &&
-        bump == false
+        bump == false &&
+        feedClicked == false
     ) {
         observe = false;
         feed = true;
@@ -139,6 +155,8 @@ function mousePressed() {
         pressY > 455 &&
         pressY < 490 &&
         feed == false &&
+        (feedCounter == 0 || (feedCounter > 0 && millis() - fedTime > 5000)) &&
+        call == false &&
         bump == false
     ) {
         observe = false;
@@ -171,7 +189,7 @@ function mouseClicked() {
         feedClicked +
         " call = " +
         call +
-        "bump = " +
+        " bump = " +
         bump
     );
 }
@@ -200,17 +218,26 @@ function draw() {
     } else {
         aboveCall = false;
     }
-    if (aboveCall == true && call == false && bump == false) {
+    if (
+        aboveCall == true &&
+        call == false &&
+        bump == false &&
+        (feedCounter == 0 || (feedCounter > 0 && millis() - fedTime > 5000))
+    ) {
         cursor("pointer");
     } else if (
-        (aboveFeed == true && feed == false && bump == false) ||
+        (aboveFeed == true &&
+            feed == false &&
+            bump == false &&
+            (feedCounter == 0 || (feedCounter > 0 && millis() - fedTime > 5000))) ||
         (feed == true && feedClicked == false && bump == false)
     ) {
         cursor("grab");
     } else if (
         (feed == false && millis() - fedTime <= 5000) ||
         call == true ||
-        bump == true
+        bump == true ||
+        leave == true
     ) {
         cursor("default");
     } else {
@@ -234,12 +261,19 @@ function draw() {
     }
 
     // 【slashes】
+
+    if (bump == true) {
+        lerpDeg = lerp(lerpDeg, 450, 0.01);
+    } else {
+        lerpDeg = 0;
+    }
     strokeWeight(1.6);
     for (let x = -0.1 * width; x < width * 1.1; x += delx) {
         for (let y = -0.1 * height, i = 0; y < height * 1.5; y += dely, i++) {
             stroke(187, 0, 100, a);
             a = 0.4;
 
+            // 受鼠标影响/生物碰撞影响 向下移动距离
             if (call == true) {
                 d = dist(mouseX, mouseY, x, y);
                 r = map(d, 0, 50, 30, 0);
@@ -247,8 +281,8 @@ function draw() {
                     r = 0;
                 }
             } else if (beforeBump == true) {
-                r1 = map(dist(circleX1, circleY1, x, y), 0, 50, 45, 0);
-                r2 = map(dist(circleX2, circleY2, x, y), 0, 50, 45, 0);
+                r1 = map(dist(circleX1, circleY1, x, y), 0, 50, 50, 0);
+                r2 = map(dist(circleX2, circleY2, x, y), 0, 50, 50, 0);
                 if (dist(circleX1, circleY1, x, y) > 50) {
                     r1 = 0;
                 }
@@ -261,27 +295,42 @@ function draw() {
                 r2 = 0;
             }
 
+            // bump后爆炸旋转设置
+            if (bump == true) {
+                if (dist(x, y, bumpX, bumpY) > 150) {
+                    bumpDeg = 0;
+                } else {
+                    bumpDeg = map(dist(x, y, bumpX, bumpY), 0, 160, 450, 0) - lerpDeg;
+                    if (bumpDeg < 0) {
+                        bumpDeg = 0;
+                    }
+                }
+            } else {
+                bumpDeg = 0;
+            }
+
             // default流动效果
             let noiseOrigin = noise(
                 x / 50 + frameCount / 300,
                 y / 50 + frameCount / 300
             );
-            let noiseMap = map(noiseOrigin, 0, 1, -18, 18); // 流动效果 斜杠上下移动距离
+            let noiseMap = map(noiseOrigin, 0, 1, -18, 18); // 流动时斜杠上下移动距离
             if (feed == true && feedClicked == true) {
-                feedDeg1 = map(dist(x, y, circleX1, circleY1), 0, 50, PI, 0);
                 if (dist(x, y, circleX1, circleY1) > 50) {
                     feedDeg1 = 0;
+                } else {
+                    feedDeg1 = map(dist(x, y, circleX1, circleY1), 0, 50, PI, 0);
                 }
                 if (creature2show == false || dist(x, y, circleX2, circleY2) > 50) {
                     feedDeg2 = 0;
                 } else {
-                    feedDeg2 = map(dist(x, y, circleX2, circleY2), 0, 50, PI, 0); // 也要改
+                    feedDeg2 = map(dist(x, y, circleX2, circleY2), 0, 50, PI, 0);
                 }
             }
             if (i % 2 == 0) {
                 push();
                 translate(x, y);
-                rotate(PI * rotateRad + feedDeg1 + feedDeg2);
+                rotate(PI * rotateRad + feedDeg1 + feedDeg2 + radians(bumpDeg));
                 line(
                     r + r1 + r2 - delx / 2,
                     r + r1 + r2 - dely / 2 + noiseMap,
@@ -292,7 +341,7 @@ function draw() {
             } else {
                 push();
                 translate(x + (delx * 3) / 4, y);
-                rotate(PI * rotateRad + feedDeg1 + feedDeg2);
+                rotate(PI * rotateRad + feedDeg1 + feedDeg2 + radians(bumpDeg));
                 line(
                     r + r1 + r2 - delx / 2,
                     r + r1 + r2 - dely / 2 + 2 + noiseMap,
@@ -337,12 +386,27 @@ function draw() {
                 foodDeg = 0;
             }
         }
-        if (
-            dist(circleX1, circleY1, foodX, foodY) < 8 ||
-            dist(circleX2, circleY2, foodX, foodY) < 8
+        if (dist(circleX1, circleY1, foodX, foodY) < 8) {
+            feedCounter += 1;
+            console.log("feedCounter = " + feedCounter);
+            feed1 = true;
+            feed2 = false;
+            feed = false;
+            feedClicked = false;
+            foodPlaced = false;
+            observe = true;
+            foodX = -20;
+            foodY = 0;
+            foodDeg = 0;
+            fedTime = millis();
+        } else if (
+            dist(circleX2, circleY2, foodX, foodY) < 8 &&
+            creature2show == true
         ) {
             feedCounter += 1;
             console.log("feedCounter = " + feedCounter);
+            feed1 = false;
+            feed2 = true;
             feed = false;
             feedClicked = false;
             foodPlaced = false;
@@ -358,6 +422,10 @@ function draw() {
     } else {
         foodX = 25;
         foodY = 425;
+    }
+    if (millis() - fedTime > 5000) {
+        feed1 = false;
+        feed2 = false;
     }
     pop();
 
@@ -387,7 +455,7 @@ function draw() {
     }
 
     // 【creature】
-    if (feedCounter >= 1 && millis() - fedTime > 5000 && creature2show == false) {
+    if (feedCounter >= 2 && millis() - fedTime > 5000 && creature2show == false) {
         ///////////////////////////////////////////////////////////////////////////////
         creature2show = true;
         creature2showTime = millis();
@@ -400,12 +468,12 @@ function draw() {
     circle(circleX1, circleY1, 10);
 
     if (beforeBump == true) {
-        bumpSpeed += 0.003;
+        bumpSpeed += 0.005;
         circleX1 = lerp(circleX1, circleX2, bumpSpeed);
         circleY1 = lerp(circleY1, circleY2, bumpSpeed);
     }
     // movement & interaction
-    if (observe == true) {
+    if (observe == true || leave == true) {
         // step 5% towards the target each frame
         circleX1 = lerp(circleX1, targetX1, 0.05);
         circleY1 = lerp(circleY1, targetY1, 0.05);
@@ -472,7 +540,7 @@ function draw() {
                 circle12Show = false;
             }
         }
-    } else if (millis() - fedTime <= 5000) {
+    } else if (millis() - fedTime <= 5000 && feed1 == true) {
         strokeWeight(2.5);
         if (frameCount % 60 == 1) {
             circle11Show = true;
@@ -626,8 +694,7 @@ function draw() {
         if (beforeBump == true) {
             circleX2 = lerp(circleX2, circleX1, bumpSpeed);
             circleY2 = lerp(circleY2, circleY1, bumpSpeed);
-        }
-        if (observe == true) {
+        } else if (observe == true) {
             // step 5% towards the target each frame
             circleX2 = lerp(circleX2, targetX2, 0.05);
             circleY2 = lerp(circleY2, targetY2, 0.05);
@@ -636,8 +703,7 @@ function draw() {
                 targetX2 = random(0, width);
                 targetY2 = random(0, height);
             }
-        }
-        if (feed == true) {
+        } else if (feed == true) {
             if (feedClicked == false) {
                 circleX2 = lerp(circleX2, foodX, 0.003);
                 circleY2 = lerp(circleY2, foodY, 0.003);
@@ -646,24 +712,24 @@ function draw() {
                 circleX2 = lerp(circleX2, foodX, 0.006);
                 circleY2 = lerp(circleY2, foodY, 0.006);
             }
-        }
-        if (call == true) {
+        } else if (call == true) {
             circleX2 = lerp(circleX2, mouseX, 0.008);
             circleY2 = lerp(circleY2, mouseY, 0.008);
-        }
-        if (bump == true) {
+        } else if (bump == true) {
             circleX2 = lerp(circleX2, targetX2, 0.1);
             circleY2 = lerp(circleY2, targetY2, 0.1);
             if (frameCount % 80 == 0) {
                 targetX2 = random(0, width);
                 targetY2 = random(0, height);
             }
+        } else if (leave == true) {
+            circleX2 = lerp(circleX2, 850, 0.004);
+            circleY2 = lerp(circleY2, targetY2, 0.004);
         }
     }
 
     // signal 2
     strokeWeight(1);
-    // sigH = map((circleX1 ** 2 + circleY1 ** 2) ** 0.5, 0, 89 ** 0.5 * 100, 360, 240);
     if (creature2show == false) {
         noStroke();
     } else {
@@ -699,7 +765,7 @@ function draw() {
                     circle22Show = false;
                 }
             }
-        } else if (millis() - fedTime <= 5000) {
+        } else if (millis() - fedTime <= 5000 && feed2 == true) {
             strokeWeight(2.5);
             if (frameCount % 60 == 41) {
                 circle21Show = true;
@@ -708,11 +774,10 @@ function draw() {
             }
             if (circle21Show == true) {
                 noFill();
-
                 stroke(foodH, 50, 100, circleS21);
                 circle(circleX2, circleY2, circleD21);
                 circleD21 += 4;
-                circleS21 -= 0.021;
+                circleS21 -= 0.02;
                 if (circleS21 < 0) {
                     circle21Show = false;
                 }
@@ -721,14 +786,13 @@ function draw() {
                 circle22Show = true;
                 circleD22 = 30;
                 circleS22 = 0.9;
-                if (circle22Show == true) {
-                }
-
+            }
+            if (circle22Show == true) {
                 noFill();
                 stroke(foodH, 50, 100, circleS22);
                 circle(circleX2, circleY2, circleD22);
                 circleD22 += 4;
-                circleS22 -= 0.021;
+                circleS22 -= 0.02;
                 if (circleS22 < 0) {
                     circle22Show = false;
                 }
@@ -752,7 +816,6 @@ function draw() {
             }
             if (circle21Show == true) {
                 noFill();
-
                 stroke(callH, callSignalS, 100, circleS21);
                 circle(circleX2, circleY2, circleD21);
                 circleD21 += 4;
@@ -848,31 +911,7 @@ function draw() {
     // 【bump】
     if (creature2show == true && millis() - creature2showTime >= 5000) {
         if (
-            dist(circleX1, circleY1, circleX2, circleY2) < 30 &&
-            bump == false &&
-            (feed == true || call == true)
-        ) {
-            bump = true;
-            bumped = false;
-            bumpTime = millis();
-            // console.log("bump = " + bump);
-            observe = false;
-            feed = false;
-            feedClicked = false;
-            foodPlaced = false;
-            call = false;
-
-            foodX = 25;
-            foodY = 425;
-            foodDeg = 0;
-            callD = 20;
-            callA = 1;
-            callX = 25;
-            callY = 470;
-        }
-        if (
-            // dist(circleX1, circleY1, circleX2, circleY2) < 600 &&
-            dist(circleX1, circleY1, circleX2, circleY2) > 480 &&
+            dist(circleX1, circleY1, circleX2, circleY2) > 600 &&
             beforeBump == false &&
             bump == false &&
             observe == true
@@ -881,10 +920,10 @@ function draw() {
             // let randomBump = random(0, 10); // 会重复触发
             // console.log("randomBump = " + randomBump)
             if (
-                frameCount % 1800 == 0 &&
-                dist(circleX1, circleY1, circleX2, circleY2) >= 30
+                frameCount % 600 == 0 &&
+                dist(circleX1, circleY1, circleX2, circleY2) >= 32
             ) {
-                console.log(frameCount, dist(circleX1, circleY1, circleX2, circleY2))
+                console.log(frameCount, dist(circleX1, circleY1, circleX2, circleY2));
                 beforeBump = true;
                 observe = false;
             }
@@ -892,13 +931,31 @@ function draw() {
             //   renewRandomBump = false;
             // }
         }
-        if (dist(circleX1, circleY1, circleX2, circleY2) < 30 && observe == false) {
+        if (
+            dist(circleX1, circleY1, circleX2, circleY2) < 32 &&
+            observe == false &&
+            bump == false
+        ) {
+            bumpX = (circleX1 + circleX2) / 2;
+            bumpY = (circleY1 + circleY2) / 2;
+            console.log(
+                "1: " +
+                circleX1 +
+                circleY1 +
+                ", 2: " +
+                circleX2 +
+                circleY2 +
+                ", bump: " +
+                bumpX +
+                bumpY
+            );
+
             bumpSpeed = 0.001;
             beforeBump = false;
             bump = true;
             bumped = false;
             bumpTime = millis();
-            // console.log("bump = " + bump);
+
             observe = false;
             feed = false;
             feedClicked = false;
@@ -914,7 +971,7 @@ function draw() {
             callY = 470;
         }
 
-        if (millis() - bumpTime >= 8000 && bump == true) {
+        if (millis() - bumpTime >= 6000 && bump == true) {
             console.log("bump停止运行");
             bumpCounter += 1;
             beforeBump = false;
@@ -926,14 +983,29 @@ function draw() {
             foodPlaced = false;
             call = false;
         }
-        if (bumpCounter >= 5) {
+        if (bumpCounter >= 3) {
             ////////////////////////////////////////////////////////////////////////
-            feedCounter = 0;
+            leaveTime = millis();
             bumpCounter = 0;
+        }
+        if (millis() - leaveTime < 6000) {
+            leave = true;
+            observe = false;
+            feed = false;
+            feedClicked = false;
+            foodPlaced = false;
+            feed1 = false;
+            feed2 = false;
+            call = false;
+        }
+        if (millis() - leaveTime >= 6000) {
+            feedCounter = 0;
             creature2show = false;
+            leave = false;
+            observe = true;
             console.log("creature2show = " + creature2show);
-            console.log("feedCounter = " + feedCounter);
+            // console.log("feedCounter = " + feedCounter);
+            bumpCounter = 0;
         }
     }
-
 } // draw() end
