@@ -11,8 +11,6 @@ let canvas = createCanvas(800, 500);
 canvas.parent("p5-canvas-container");
 */
 
-// 需要编写creature2离场动画，creature2show好像有bug
-// 添加相撞时爆炸特效
 
 let s = 25; // 背景切分正方形边长
 let delx; // x向斜线间隔
@@ -263,7 +261,7 @@ function draw() {
     // 【slashes】
 
     if (bump == true) {
-        lerpDeg = lerp(lerpDeg, 450, 0.01);
+        lerpDeg = lerp(lerpDeg, 500, 0.01);
     } else {
         lerpDeg = 0;
     }
@@ -300,7 +298,7 @@ function draw() {
                 if (dist(x, y, bumpX, bumpY) > 150) {
                     bumpDeg = 0;
                 } else {
-                    bumpDeg = map(dist(x, y, bumpX, bumpY), 0, 160, 450, 0) - lerpDeg;
+                    bumpDeg = map(dist(x, y, bumpX, bumpY), 0, 150, 495, 0) - lerpDeg;
                     if (bumpDeg < 0) {
                         bumpDeg = 0;
                     }
@@ -988,7 +986,7 @@ function draw() {
             leaveTime = millis();
             bumpCounter = 0;
         }
-        if (millis() - leaveTime < 6000) {
+        if (millis() - leaveTime < 5000) {
             leave = true;
             observe = false;
             feed = false;
@@ -998,7 +996,7 @@ function draw() {
             feed2 = false;
             call = false;
         }
-        if (millis() - leaveTime >= 6000) {
+        if (millis() - leaveTime >= 5000 && leave == true) {
             feedCounter = 0;
             creature2show = false;
             leave = false;
