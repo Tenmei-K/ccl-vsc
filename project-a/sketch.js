@@ -251,7 +251,7 @@ function draw() {
                 0,
                 1,
                 ranH,
-                ranH + 25
+                ranH + 35
             );
             fill(bgH, 60, 75);
             rect(x * s, y * s, s, s);
@@ -981,7 +981,7 @@ function draw() {
             foodPlaced = false;
             call = false;
         }
-        if (bumpCounter >= 3) {
+        if (bumpCounter >= 2) {
             ////////////////////////////////////////////////////////////////////////
             leaveTime = millis();
             bumpCounter = 0;
