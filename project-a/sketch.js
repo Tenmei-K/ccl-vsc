@@ -932,7 +932,8 @@ function draw() {
         if (
             dist(circleX1, circleY1, circleX2, circleY2) < 32 &&
             observe == false &&
-            bump == false
+            bump == false &&
+            leave == false
         ) {
             bumpX = (circleX1 + circleX2) / 2;
             bumpY = (circleY1 + circleY2) / 2;
