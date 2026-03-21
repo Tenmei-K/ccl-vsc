@@ -7,6 +7,7 @@ let ground = [];
 let fly = [];
 
 function preload() {
+  spinSound = loadSound("sounds/木头咚.wav");
   jumpImg = loadImage("assets/jump.png");
 
   for (let i = 0; i < 4; i++) {
@@ -47,14 +48,16 @@ function draw() {
     }
   } else {
     cursor("default");
+    spinSound.setVolume(map(mouseY, 0, height, 1, 0))
     if (frameCount % 3 == 0) {
       curImage = (curImage + 1) % ground.length;
+      spinSound.play();
     }
     if (millis() - pressTime < 50) {
       image(jumpImg, width / 2, height / 2 - height / 25, width, height);
       image(ground[curImage], width / 2, height / 2, width, height);
     } else if (millis() - pressTime >= 50 && millis() - pressTime < 100) {
-      image(jumpImg, width / 2, height / 2 - height / 9, width, height);
+      image(jumpImg, width / 2, height / 2 - height / 6, width, height);
       image(ground[curImage], width / 2, height / 2, width, height);
     } else {
       let h = map(mouseX, 0, width, 0, 360 * 3) % 360;
