@@ -1,3 +1,5 @@
+// sound files from comm lab web
+
 let timeTook = false;
 let pressTime;
 let curImage = 0;
