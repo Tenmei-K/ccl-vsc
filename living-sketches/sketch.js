@@ -35,11 +35,13 @@ function mousePressed() {
 
 function draw() {
   background(255);
+  imageMode(CENTER);
 
   if (mouseIsPressed == false) {
     timeTook = false;
     cursor("pointer");
     tint(360, 100, 100, 1);
+    image(ground[curImage], width / 2, height / 2, width, height);
     if (frameCount % 9 == 0) {
       curImage = (curImage + 1) % ground.length;
     }
@@ -49,11 +51,12 @@ function draw() {
       curImage = (curImage + 1) % ground.length;
     }
     if (millis() - pressTime < 50) {
-      image(jumpImg, 0, -fly[curImage].width / 25, width, height);
+      image(jumpImg, width / 2, height / 2 - height / 25, width, height);
+      image(ground[curImage], width / 2, height / 2, width, height);
     } else if (millis() - pressTime >= 50 && millis() - pressTime < 100) {
-      image(jumpImg, 0, -fly[curImage].width / 9, width, height);
+      image(jumpImg, width / 2, height / 2 - height / 9, width, height);
+      image(ground[curImage], width / 2, height / 2, width, height);
     } else {
-      imageMode(CENTER);
       let h = map(mouseX, 0, width, 0, 360 * 3) % 360;
       let s = map(mouseY, 0, height, 100, 0);
       let a = s / 100;
@@ -65,10 +68,11 @@ function draw() {
         width,
         height
       );
+      tint(360, 100, 100, 1);
+      image(ground[curImage], mouseX, height / 2, width, height);
     }
     tint(178, 40, 100, 1);
   }
 
-  imageMode(CORNER);
-  image(ground[curImage], 0, 0, width, height);
+  // imageMode(CORNER);
 }
