@@ -1,0 +1,14 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+canvas {
+  display: block;
+}
+
+.main-wrapper {
+  max-width: 800px;
+  margin: 0px;
+}
