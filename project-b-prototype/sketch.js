@@ -71,7 +71,7 @@ class Star {
   }
   update() {
 
-    this.rotateDeg = map(dist(this.x, this.y, this.trackX, this.trackY), 0, width / 3, - frameCount / 6, 0);
+    this.rotateDeg = map(dist(this.x, this.y, this.trackX, this.trackY), 0, width / 3, - frameCount / 5, 0);
     if (dist(this.x, this.y, this.trackX, this.trackY) > width / 3) {
       this.rotateDeg = 0;
     }
@@ -82,14 +82,14 @@ class Star {
     }
 
     if (this.trackY > height + this.s * 10 && this.trackX < width) {
-      this.dRad += PI * 1.184 * (this.railR + this.dx / height) ** 0.49;
+      this.dRad += PI * 1.1708 * (this.railR + this.dx / height) ** 0.49;
     }
 
     // this.trackX = this.trackR * sin((frameCount - this.loc) / 100 - 2 * PI / 3) + width / 2; // 如果不改trackY会有椭圆行星环的效果
     this.trackX = this.trackR * sin((frameCount - this.loc) / 200 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + width; // sin里面的乘方是为了控制不同轨道的流速
     this.trackY = this.trackR * cos((frameCount - this.loc) / 200 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + height + (this.trackR - this.dx) ** 1.855 / 880; // 最后括号外的乘方是为了控制轨道的y 
-    this.x = lerp(this.x, this.trackX, 0.05);
-    this.y = lerp(this.y, this.trackY, 0.05);
+    this.x = lerp(this.x, this.trackX, 0.028);
+    this.y = lerp(this.y, this.trackY, 0.028);
   }
 }
 
