@@ -12,14 +12,15 @@ function draw() {
   background(220, 88, 11, 1 - abs(map(sin(frameCount / 300), 1, -1, 0.9, -0.9)));
 
   noFill();
-  stroke(100);
+  stroke("#ffffff57");
   strokeWeight(1);
   for (let i = 0; i < railRs.length; i++) {
-    stroke(100);
+    // stroke(100);
     circle(width, height + (railRs[i] * height) ** 1.855 / 880, railRs[i] * height * 2); // [0.8, 1.0, 1.22, 1.45, 1.74];
     // stroke(50)
     // circle(width, height + (railRs[i] * height) ** 1.801 / 590, railRs[i] * height * 2); // [0.9, 1.1, 1.32, 1.55, 1.84];
   }
+
   for (let i = 0; i < stars.length; i++) {
     stars[i].display()
     stars[i].update();
@@ -35,6 +36,8 @@ class Star {
 
     this.trackX = x;
     this.trackY = y;
+    this.rotateDeg = 0;
+
     this.choice = random(31); // 提供轨道选择比例
     if (this.choice < 4) {
       this.railR = 0.8
@@ -54,18 +57,32 @@ class Star {
     this.loc = frameCount; // record when the star is drawn and where it should be accordingly
   }
   display() {
-    if (this.trackX <= width + this.s * 10 && this.trackY <= height + this.s * 10) {
+    if (this.trackX <= width + this.s * 5 && this.trackY <= height + this.s * 10) {
       fill(this.col);
     } else {
       noFill();
     }
     noStroke();
-    rect(this.x - this.s / 2, this.y - this.s / 2, this.s, this.s);
+    push();
+    translate(this.x, this.y);
+    rotate(this.rotateDeg);
+    rect(- this.s / 2, - this.s / 2, this.s, this.s);
+    pop();
   }
   update() {
 
+    this.rotateDeg = map(dist(this.x, this.y, this.trackX, this.trackY), 0, width / 3, - frameCount / 6, 0);
+    if (dist(this.x, this.y, this.trackX, this.trackY) > width / 3) {
+      this.rotateDeg = 0;
+    }
+
+    this.s = map(this.trackY, -this.s * 10, height + this.s * 10, 6, 15)
+    if (this.trackY > height + this.s * 10 || this.trackX > width) {
+      this.s = 12;
+    }
+
     if (this.trackY > height + this.s * 10 && this.trackX < width) {
-      this.dRad += PI * 1.2 * (this.railR + this.dx / height) ** 0.49;
+      this.dRad += PI * 1.184 * (this.railR + this.dx / height) ** 0.49;
     }
 
     // this.trackX = this.trackR * sin((frameCount - this.loc) / 100 - 2 * PI / 3) + width / 2; // 如果不改trackY会有椭圆行星环的效果
