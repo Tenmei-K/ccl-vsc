@@ -1,5 +1,4 @@
-// http://127.0.0.1:5500/project-b/
-// http://10.209.89.3:5500/project-b/
+// http://127.0.0.1:5500/project-b-copy/
 
 let colors = ["hsl(202, 100%, 85%)", "hsl(49, 100%, 80%)", "hsl(0, 90%, 86%)", "hsl(71, 80%, 80%)"]
 let stars = [];
@@ -7,6 +6,7 @@ let railRs = [0.8, 1.0, 1.22, 1.45, 1.74];
 
 let railStars = [];
 let railShowUp = true;
+let railStarY = 0;
 
 function preload() {
   // load the handPose model
@@ -17,27 +17,32 @@ function setup() {
   let canvas = createCanvas(windowWidth, windowHeight);
   canvas.parent("p5-canvas-container");
   colorMode(HSB);
+
+  if (railShowUp == true) { // 轨道上星星冒出的过程
+    setInterval(function () {
+      // for (let y = 0; y <= height * 1.2; y += 0.001 * height) {
+
+      railStars.push(new RailStar(railStarY));
+      railStarY += 0.001 * height
+      if (railStarY >= height * 1.02) {
+        railShowUp = false;
+      }
+      // }
+    }, 10);
+  }
 }
 
 function draw() {
   background(220, 88, 11, 1 - abs(map(sin(frameCount / 300), 1, -1, 0.9, -0.9)));
 
-  if (railShowUp == true) {
-    for (let y = 0; y <= height; y += 0.1 * height) {
-      setInterval(function () {
-        railStars.push(new RailStar(y));
-      }, 500);
-      if (y >= height * 0.99) {
-        railShowUp = false;
-      }
-    }
-  }
+
+
 
   for (let i = 0; i < railStars.length; i++) {
     railStars[i].display();
-    if (millis() > 100000) {
-      railStars[i].update();
-    }
+    // if (millis() > 10000) {
+    //   railStars[i].update();
+    // }
   }
 
 
@@ -73,18 +78,19 @@ class RailStar {
       this.railR = 1.74
     }
 
-    this.trackR = this.railR * height + this.dx; // 加了随机分布值的轨道
-    this.x = (this.trackR ** 2 - this.y ** 2) ** 0.5;
+    this.trackR = this.railR * height + this.dx; // 轨道
+    this.x = width - ((this.trackR ** 2 - this.y ** 2) ** 0.5);
+    // this.x = this.trackR * sin((frameCount - this.loc) / 200 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + width;
 
     this.s = 10; // 星星的边长（暂定）
     // this.loc = frameCount; // record when the star is drawn and where it should be accordingly
   }
   display() {
-    if (this.x <= width + this.s * 5 && this.y <= height + this.s * 10) {
-      fill(this.col);
-    } else {
-      noFill();
-    }
+    // if (this.x <= width + this.s * 5 && this.y <= height + this.s * 10) {
+    fill(this.col);
+    // } else {
+    //   noFill();
+    // }
     noStroke();
     push();
     translate(this.x, this.y);
@@ -105,8 +111,8 @@ class RailStar {
       this.dRad += PI * 1.1708 * (this.railR + this.dx / height) ** 0.49;
     }
 
-    this.x = this.trackR * sin(1 / 200 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + width; // sin里面的乘方是为了控制不同轨道的流速
-    this.y = this.trackR * cos(1 / 200 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + height + (this.trackR - this.dx) ** 1.855 / 880; // 最后括号外的乘方是为了控制轨道的y 
+    this.x += this.trackR * sin(1 / 200 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + width; // sin里面的乘方是为了控制不同轨道的流速
+    this.y += this.trackR * cos(1 / 200 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + height + (this.trackR - this.dx) ** 1.855 / 880;
     // this.x = lerp(this.x, this.trackX, 0.028);
     // this.y = lerp(this.y, this.trackY, 0.028);
   }
