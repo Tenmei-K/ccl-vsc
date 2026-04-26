@@ -8,10 +8,11 @@
 <br>
 <h3>Projects</h3>
 
-- [Project A: transparent swimmer (tentative)](https://tenmei-k.github.io/ccl-vsc/project-a/)
-        <br>midterm: Generative Creatures
+
 - [Project B: スター (Star)](https://tenmei-k.github.io/ccl-vsc/project-b/)
         <br>finals: Dear future...
+- [Project A: transparent swimmer (tentative)](https://tenmei-k.github.io/ccl-vsc/project-a/)
+        <br>midterm: Generative Creatures
 <br>
 <h3>Exercises</h3>
 
