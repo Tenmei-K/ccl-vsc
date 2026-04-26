@@ -9,8 +9,26 @@ canvas {
   display: block;
 }
 
-.main-wrapper {
+.text-wrapper {
+  background-color: #031435;
+  color: white;
+
+  width: 100vw;
+  height: 100vh;
+
+  justify-content: center;
+  align-content: center;
+
   text-align: center;
+  font-size: 16px;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+#click {
+  font-size: 18px;
+}
+
+.main-wrapper {
   max-width: window-width;
   margin: 0px;
 }
