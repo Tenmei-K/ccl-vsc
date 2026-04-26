@@ -9,7 +9,7 @@
 <h3>Projects</h3>
 
 
-- [Project B: スター (Star)](https://tenmei-k.github.io/ccl-vsc/project-b/)
+- [Project B: 星のユニゾン (Stellar Unison)](https://tenmei-k.github.io/ccl-vsc/project-b/)
         <br>finals: Dear future...
 - [Project A: transparent swimmer (tentative)](https://tenmei-k.github.io/ccl-vsc/project-a/)
         <br>midterm: Generative Creatures
