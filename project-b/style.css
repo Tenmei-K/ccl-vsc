@@ -10,6 +10,7 @@ canvas {
 }
 
 .main-wrapper {
-  max-width: 800px;
+  text-align: center;
+  max-width: window-width;
   margin: 0px;
 }

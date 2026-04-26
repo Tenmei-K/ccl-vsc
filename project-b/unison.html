@@ -9,19 +9,27 @@
 
   <link rel="stylesheet" type="text/css" href="style.css">
 
-  <!-- <script src="lib/p5.js"></script> -->
-  <!-- <script src="lib/p5.sound.js"></script> -->
+  <script src="lib/p5.js"></script>
+  <script src="lib/p5.sound.js"></script>
 
   <!-- Alternatively, you can import the library via CDN (Content Delivery Network). -->
 
   <!-- <script src="https://unpkg.com/ml5@0.20.0-alpha.4/dist/ml5.min.js"></script> -->
-  <!-- <script src="https://unpkg.com/ml5@1/dist/ml5.min.js"></script> -->
+  <script src="https://unpkg.com/ml5@1/dist/ml5.min.js"></script>
 </head>
 
 <body>
+
   <div class="main-wrapper">
-    <a href="unison.html">click to start</a>
+
+    <!-- the following div will contain the p5 canvas. -->
+    <div id="p5-canvas-container">
+      <!-- p5 canvas will be appended here. -->
+    </div>
   </div>
+
+  <!-- the script tag below should always be at the bottom, right before the closing body tag -->
+  <script src="sketch.js"></script>
 </body>
 
 </html>
