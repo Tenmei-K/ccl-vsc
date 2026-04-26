@@ -5,8 +5,12 @@ let stars = [];
 let railRs = [0.8, 1.0, 1.22, 1.45, 1.74];
 
 let railStars = [];
-let railShowUp = true;
-let railStarY = 0;
+let railStarLoc = 320;
+let bgRailStars = [];
+
+let cirA = 1;
+let cirR = 280;
+let interactionStart = false;
 
 function preload() {
   // load the handPose model
@@ -18,50 +22,70 @@ function setup() {
   canvas.parent("p5-canvas-container");
   colorMode(HSB);
 
-  if (railShowUp == true) { // 轨道上星星冒出的过程
-    setInterval(function () {
-      // for (let y = 0; y <= height * 1.2; y += 0.001 * height) {
+  // 轨道上星星冒出的过程
+  setInterval(function () {
+    if (railStarLoc > - 45) {
+      railStars.push(new RailStar(railStarLoc, 0.8, 0));
+      railStarLoc -= 0.5;
+    }
+  }, 2);
 
-      railStars.push(new RailStar(railStarY));
-      railStarY += 0.001 * height
-      if (railStarY >= height * 1.02) {
-        railShowUp = false;
-      }
-      // }
-    }, 10);
+  // 提前push最底边背景的星星
+  for (let loc = 0; loc < 2160; loc += 0.75) {
+    bgRailStars.push(new RailStar(loc, 0.34, loc));
   }
 }
 
 function draw() {
   background(220, 88, 11, 1 - abs(map(sin(frameCount / 300), 1, -1, 0.9, -0.9)));
 
+  if (railStarLoc <= - 45) {
 
+    if (interactionStart == false) {
+      // 重新push一整圈railStars
+      railStars = [];
+      for (let loc = 0; loc < 2160; loc += 2.5) {
+        railStars.push(new RailStar(loc, 0.9, loc));
+      }
 
+      interactionStart = true;
+    }
 
+    for (let i = 0; i < bgRailStars.length; i++) {
+      bgRailStars[i].display();
+      bgRailStars[i].update();
+    }
+
+    fill(0, 0, 100, cirA);
+    noStroke();
+    circle(width / 2, height / 2, cirR);
+    cirA -= 0.02;
+    cirR += 39;
+    if (cirA <= 0) {
+      cirR = 0
+    }
+
+  }
+
+  // console.log(railStars.length)
   for (let i = 0; i < railStars.length; i++) {
     railStars[i].display();
-    // if (millis() > 10000) {
-    //   railStars[i].update();
-    // }
+    if (railStarLoc <= - 45) {
+      railStars[i].update();
+    }
   }
 
 
   // drawRails();
 
-  // 【draw front stars】
-  // for (let x = 0; i < stars.length; i++) {
-  //   stars[i].display()
-  //   stars[i].update();
-  // }
-
 
 }
 
 class RailStar {
-  constructor(y) { // 只在创建new时运行一次
-    this.y = y;
-    this.dx = map(noise(frameCount), 0, 1, -height * 0.15, height * 0.2); // 随机分布值
-    this.col = (0, 0, 100, map(abs(this.dx), 0, height * 0.05, 80, 50) + random(5, 10));
+  constructor(loc, maxA, i) { // 只在创建new时运行一次
+    this.dx = map(noise(frameCount + i), 0, 1, -height * 0.18, height * 0.18); // 随机分布值
+    this.col = color(233, map(abs(this.dx), 0, height * 0.18, 10, -5), 100, map(abs(this.dx), 0, height * 0.18, maxA, maxA / 8));
+    // this.col = color(0, 0, 100, 0.5);
 
     this.rotateDeg = 0;
 
@@ -77,20 +101,19 @@ class RailStar {
     } else {
       this.railR = 1.74
     }
-
     this.trackR = this.railR * height + this.dx; // 轨道
-    this.x = width - ((this.trackR ** 2 - this.y ** 2) ** 0.5);
-    // this.x = this.trackR * sin((frameCount - this.loc) / 200 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + width;
+
+    this.loc = loc;
+    this.dRad = 0;
+
+    this.x = this.trackR * sin((frameCount - this.loc) / 200 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + width;
+    this.y = this.trackR * cos((frameCount - this.loc) / 200 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + height + (this.trackR - this.dx) ** 1.855 / 880;
 
     this.s = 10; // 星星的边长（暂定）
-    // this.loc = frameCount; // record when the star is drawn and where it should be accordingly
   }
+
   display() {
-    // if (this.x <= width + this.s * 5 && this.y <= height + this.s * 10) {
     fill(this.col);
-    // } else {
-    //   noFill();
-    // }
     noStroke();
     push();
     translate(this.x, this.y);
@@ -98,23 +121,23 @@ class RailStar {
     rect(- this.s / 2, - this.s / 2, this.s, this.s);
     pop();
   }
+
   update() {
 
-    this.rotateDeg = - map(this.trackR, 0.78 * height, 1.79 * height, frameCount / 10, frameCount / 12) % 360;
+    // this.rotateDeg = - (frameCount / 18) % 360;
 
     this.s = map(this.y, -this.s * 10, height + this.s * 10, 6, 15)
     if (this.y > height + this.s * 10 || this.trackX > width) {
       this.s = 15;
     }
 
-    if (this.trackY > height + this.s * 10 && this.trackX < width) {
-      this.dRad += PI * 1.1708 * (this.railR + this.dx / height) ** 0.49;
-    }
+    // if (this.y > height + this.s * 10 && this.x < width) {
+    //   this.dRad += PI * 1.1708 * (this.railR + this.dx / height) ** 0.46;
+    // }
 
-    this.x += this.trackR * sin(1 / 200 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + width; // sin里面的乘方是为了控制不同轨道的流速
-    this.y += this.trackR * cos(1 / 200 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + height + (this.trackR - this.dx) ** 1.855 / 880;
-    // this.x = lerp(this.x, this.trackX, 0.028);
-    // this.y = lerp(this.y, this.trackY, 0.028);
+    this.x = this.trackR * sin((frameCount - this.loc) / 180 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + width; // sin里面的乘方是为了控制不同轨道的流速
+    this.y = this.trackR * cos((frameCount - this.loc) / 180 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + height + (this.trackR - this.dx) ** 1.855 / 880; // 最后括号外的乘方是为了控制轨道的y 
+
   }
 }
 
