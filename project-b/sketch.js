@@ -261,8 +261,8 @@ class Star {
     } // 使trackX和trackY快速转过一圈回到屏幕内
 
     // this.trackX = this.trackR * sin((frameCount - this.loc) / 100 - 2 * PI / 3) + width / 2; // 如果不改trackY会有椭圆行星环的效果
-    this.trackX = this.trackR * sin((frameCount - this.loc) / 200 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + width; // sin里面的乘方是为了控制不同轨道的流速
-    this.trackY = this.trackR * cos((frameCount - this.loc) / 200 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + height + (this.trackR - this.dx) ** 1.855 / 880; // 最后括号外的乘方是为了控制轨道的y 
+    this.trackX = this.trackR * sin((frameCount - this.loc) / 240 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + width; // sin里面的乘方是为了控制不同轨道的流速
+    this.trackY = this.trackR * cos((frameCount - this.loc) / 240 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + height + (this.trackR - this.dx) ** 1.855 / 880; // 最后括号外的乘方是为了控制轨道的y 
     this.x = lerp(this.x, this.trackX, 0.028);
     this.y = lerp(this.y, this.trackY, 0.028);
 
@@ -296,8 +296,8 @@ class RailStar {
     this.loc = loc;
     this.dRad = 0;
 
-    this.x = this.trackR * sin((frameCount - this.loc) / 150 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + width;
-    this.y = this.trackR * cos((frameCount - this.loc) / 150 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + height + (this.trackR - this.dx) ** 1.855 / 880;
+    this.x = this.trackR * sin((frameCount - this.loc) / 200 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + width;
+    this.y = this.trackR * cos((frameCount - this.loc) / 200 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + height + (this.trackR - this.dx) ** 1.855 / 880;
 
     this.s = 10; // 星星的边长（暂定）
   }
