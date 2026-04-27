@@ -71,7 +71,7 @@ function draw() {
   // background stars
   if (railStarLoc <= - 25) {
     fill("white");
-    textSize(17);
+    textSize(18);
     textFont('Courier New');
     text("👌(pinch index finger & thumb) = ⭐", 18, 33);
     text("🔊++ = ?", 19.5, 63);
