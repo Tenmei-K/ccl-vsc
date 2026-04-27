@@ -65,7 +65,7 @@ function draw() {
 
   vol = mic.getLevel();
   // let VOL_THRESHOLD = 0.95 * (1 - vol);
-  let VOL_THRESHOLD = 0.5;
+  let VOL_THRESHOLD = 0.3;
   // console.log(vol);
 
   // background stars
