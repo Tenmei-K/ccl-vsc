@@ -31,4 +31,5 @@ canvas {
 .main-wrapper {
   max-width: window-width;
   margin: 0px;
+  font-family: 'Courier New', Courier, monospace;
 }

@@ -2,9 +2,11 @@
 // http://10.209.89.3:5500/project-b/
 
 let mic;
+let vol;
 let pvol;
 
-let colors = ["hsl(202, 85%, 67%)", "hsl(49, 100%, 74%)", "hsl(0, 80%, 77%)", "hsl(71, 74%, 60%)"]
+let colors = ["hsl(202, 85%, 62%)", "hsl(49, 100%, 69%)", "hsl(0, 80%, 72%)", "hsl(71, 74%, 55%)"]
+// let colors = ["hsl(202, 85%, 57%)", "hsl(49, 100%, 64%)", "hsl(0, 80%, 67%)", "hsl(71, 74%, 50%)"]
 let stars = [];
 let railRs = [0.8, 1.0, 1.22, 1.45, 1.74];
 let PINCH_DISTANCE_THRESHOLD = 50;
@@ -41,7 +43,7 @@ function setup() {
   // 轨道上星星冒出的过程
   setInterval(function () {
     if (railStarLoc > - 25) { // 这样的设置我们一共有三个
-      railStars.push(new RailStar(railStarLoc, 0.8, 0));
+      railStars.push(new RailStar(railStarLoc, 0.75, 0));
       railStarLoc -= 0.5;
     }
   }, 1);
@@ -61,26 +63,27 @@ function setup() {
 function draw() {
   background(220, 88, 11, 1 - abs(map(sin(frameCount / 300), 1, -1, 0.9, -0.9)));
 
-
-  let vol = mic.getLevel();
-  let VOL_THRESHOLD = 0.6 * (1 - vol);
+  vol = mic.getLevel();
+  // let VOL_THRESHOLD = 0.95 * (1 - vol);
+  let VOL_THRESHOLD = 0.5;
   // console.log(vol);
 
   // background stars
   if (railStarLoc <= - 25) {
     fill("white");
-    textSize(16);
-    text("🖐️->👌->🖐️ = ⭐", 15, 30);
-    text("🔊++  =  ?", 15, 50);
+    textSize(17);
+    textFont('Courier New');
+    text("👌(pinch index finger & thumb) = ⭐", 18, 33);
+    text("🔊++ = ?", 19.5, 63);
 
     if (interactionStart == false) {
       // 重新push一整圈railStars
       railStars = [];
       for (let loc = 0; loc < 2160; loc += 2.5) {
-        railStars.push(new RailStar(loc, 0.9, loc));
+        railStars.push(new RailStar(loc, 0.55, loc));
       }
       for (let loc = 0; loc < 2160; loc += 0.75) {
-        bgRailStars.push(new RailStar(loc, 0.34, loc));
+        bgRailStars.push(new RailStar(loc, 0.15, loc));
       }
       interactionStart = true;
     }
@@ -90,11 +93,15 @@ function draw() {
       bgRailStars[i].display();
       bgRailStars[i].update();
     }
+    for (let i = 0; i < railStars.length; i++) {
+      railStars[i].update();
+    }
+
 
     fill(0, 0, 100, cirA);
     noStroke();
     circle(width / 2, height / 2, cirR);
-    cirA -= 0.035;
+    cirA -= 0.032;
     cirR += 50;
     if (cirA <= 0) {
       cirR = 0
@@ -102,13 +109,13 @@ function draw() {
 
     if (vol - pvol > VOL_THRESHOLD) {
       for (let i = 0; i < bgRailStars.length; i++) {
-        bgRailStars[i].dx *= map(vol - pvol + VOL_THRESHOLD, 0, 0.1, 1, 5)
+        bgRailStars[i].dx *= map(vol - pvol + VOL_THRESHOLD, 0, 0.1, 1, 4)
       }
       for (let i = 0; i < railStars.length; i++) {
-        railStars[i].dx *= map(vol - pvol + VOL_THRESHOLD, 0, 0.1, 1, 5)
+        railStars[i].dx *= map(vol - pvol + VOL_THRESHOLD, 0, 0.1, 1, 4)
       }
       for (let i = 0; i < stars.length; i++) {
-        stars[i].dx *= map(vol - pvol + VOL_THRESHOLD, 0, 0.1, 1, 5)
+        stars[i].dx *= map(vol - pvol + VOL_THRESHOLD, 0, 0.1, 1, 4)
       }
     } else {
       for (let i = 0; i < bgRailStars.length; i++) {
@@ -125,14 +132,10 @@ function draw() {
 
   }
 
-  // console.log(railStars.length)
   for (let i = 0; i < railStars.length; i++) {
     railStars[i].display();
-    if (railStarLoc <= - 25) {
-      railStars[i].update();
-    }
   }
-
+  pvol = vol;
 
 
   //【ml5】&【draw stars】
@@ -186,17 +189,12 @@ function draw() {
   }
 
 
-  // drawRails();
-
   // 【draw front stars】
   for (let i = 0; i < stars.length; i++) {
     stars[i].display();
     stars[i].update();
   }
 
-
-  // image(video, 0, 0);
-  pvol = vol;
 
 }
 

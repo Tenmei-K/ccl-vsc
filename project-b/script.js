@@ -18,5 +18,5 @@ setInterval(function () {
     }
     a += delA;
     text.style.color = "rgb(255, 255, 255, " + a + ")"
-}, 25);
+}, 15);
 
