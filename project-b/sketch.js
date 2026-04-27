@@ -1,22 +1,24 @@
 // http://127.0.0.1:5500/project-b/
 // http://10.209.89.3:5500/project-b/
 
-let mic;
+let mic, fft;
 let vol;
 let pvol;
+
+let pitchAvg = [];
 
 let colors = ["hsl(202, 85%, 62%)", "hsl(49, 100%, 69%)", "hsl(0, 80%, 72%)", "hsl(71, 74%, 55%)"]
 // let colors = ["hsl(202, 85%, 57%)", "hsl(49, 100%, 64%)", "hsl(0, 80%, 67%)", "hsl(71, 74%, 50%)"]
 let stars = [];
+let starCol;
+
 let railRs = [0.8, 1.0, 1.22, 1.45, 1.74];
+
 let PINCH_DISTANCE_THRESHOLD = 50;
-let starCreatingColors = []; // 针对每一只手设定
 let starCreatedBooleans = []; // 针对每一只手设定
 
-let starsScared = false;
-
 let railStars = [];
-let railStarLoc = 320;
+let railStarLoc = 340;
 let bgRailStars = [];
 
 let cirA = 1.2;
@@ -39,12 +41,16 @@ function setup() {
 
   mic = new p5.AudioIn();
   mic.start();
+  fft = new p5.FFT();
+  for (let i = 0; i < 1024; i++) {
+    pitchAvg.push(0);
+  }
 
   // 轨道上星星冒出的过程
   setInterval(function () {
-    if (railStarLoc > - 25) { // 这样的设置我们一共有三个
-      railStars.push(new RailStar(railStarLoc, 0.75, 0));
-      railStarLoc -= 0.5;
+    if (railStarLoc > - 28) { // 这样的设置我们一共有两个
+      railStars.push(new RailStar(railStarLoc, 0.52, 0));
+      railStarLoc -= 0.6;
     }
   }, 2);
 
@@ -65,11 +71,54 @@ function draw() {
 
   vol = mic.getLevel();
   // let VOL_THRESHOLD = 0.95 * (1 - vol);
-  let VOL_THRESHOLD = 0.3;
+  let VOL_THRESHOLD = 0.4;
   // console.log(vol);
 
-  // background stars
-  if (railStarLoc <= - 25) {
+  //【pitch】
+  let spectrum = fft.analyze();
+  let highestIdx = -1;
+  let highestDelta = 0;
+  for (i = 0; i < spectrum.length; i++) {
+    pitchAvg[i] = pitchAvg[i] * 0.95 + spectrum[i] * 0.05;
+    let delta = spectrum[i] - pitchAvg[i];
+    // vertex(i, map(delta, -127, 127, height, 0));
+    if (delta > highestDelta) {
+      highestDelta = delta;
+      highestIdx = i;
+    }
+  }
+
+  if (highestIdx < 1) {
+    starCol = color("hsl(202, 85%, 62%)")
+  } else if (highestIdx < 5) {
+    starCol = color("hsl(71, 74%, 55%)")
+  } else if (highestIdx < 60) {
+    starCol = color("hsl(49, 100%, 69%)")
+  } else {
+    starCol = color("hsl(0, 80%, 72%)")
+  }
+
+
+  //【bg rail stars】
+
+  for (let i = 0; i < railStars.length; i++) {
+    railStars[i].display();
+  }
+
+  if (railStarLoc <= - 28) {
+    //【bg tiny stars】
+    push();
+    translate(width, height / 2);
+    rotate(frameCount / 3200)
+    let dis = width / 39;
+    for (let x = - ((width ** 2 + height ** 2) ** 0.5); x < (width ** 2 + height ** 2) ** 0.5; x += dis) {
+      for (let y = - ((width ** 2 + height ** 2) ** 0.5); y < (width ** 2 + height ** 2) ** 0.5; y += dis) {
+        drawBGStars(x, y, dis)
+      }
+    }
+    pop();
+
+    // text hint
     fill("white");
     textSize(18);
     textFont('Courier New');
@@ -79,16 +128,15 @@ function draw() {
     if (interactionStart == false) {
       // 重新push一整圈railStars
       railStars = [];
-      for (let loc = 0; loc < 2160; loc += 2.5) {
+      for (let loc = 0; loc < 2560; loc += 2.5) {
         railStars.push(new RailStar(loc, 0.55, loc));
       }
-      for (let loc = 0; loc < 2160; loc += 0.75) {
+      for (let loc = 0; loc < 2560; loc += 0.75) {
         bgRailStars.push(new RailStar(loc, 0.15, loc));
       }
       interactionStart = true;
     }
 
-    // 提前push最底边背景的星星
     for (let i = 0; i < bgRailStars.length; i++) {
       bgRailStars[i].display();
       bgRailStars[i].update();
@@ -97,7 +145,7 @@ function draw() {
       railStars[i].update();
     }
 
-
+    // 爆炸
     fill(0, 0, 100, cirA);
     noStroke();
     circle(width / 2, height / 2, cirR);
@@ -107,6 +155,7 @@ function draw() {
       cirR = 0
     }
 
+    // 过大声音
     if (vol - pvol > VOL_THRESHOLD) {
       for (let i = 0; i < bgRailStars.length; i++) {
         bgRailStars[i].dx *= map(vol - pvol + VOL_THRESHOLD, 0, 0.1, 1, 4)
@@ -128,13 +177,8 @@ function draw() {
         stars[i].dx = stars[i].dxSave
       }
     }
-
-
   }
-
-  for (let i = 0; i < railStars.length; i++) {
-    railStars[i].display();
-  }
+  // 记录上一帧的vol
   pvol = vol;
 
 
@@ -154,7 +198,10 @@ function draw() {
       let centerX = (indexFinger.x + thumb.x) / 2;
       let centerY = (indexFinger.y + thumb.y) / 2;
 
-      let s = map(vol, 0, 0.9, 8, 12);
+      let s = map(vol, 0, 0.8, 8, 14);
+      if (vol > 0.8) {
+        s = 14;
+      }
 
       // display two fingers
       stroke("#ffffff45");
@@ -168,8 +215,7 @@ function draw() {
         starCreatedBooleans[i] = false;
         let dia = map(distance, 0, PINCH_DISTANCE_THRESHOLD, 60, 1);
 
-        starCreatingColors.push(random(colors));
-        fill("white");
+        fill(starCol);
         rect(centerX - s / 2, centerY - s / 2, s, s);
 
         // star.x = centerX;
@@ -178,12 +224,9 @@ function draw() {
 
       } else {
         if (starCreatedBooleans[i] == false) {
-          stars.push(new Star(centerX, centerY, starCreatingColors[i], s));
+          stars.push(new Star(centerX, centerY, starCol, s));
           starCreatedBooleans[i] = true;
         }
-        // for (let num = 0; num < stars.length; num++) {
-        //   stars[num].creating = false;
-        // }
       }
     }
   }
@@ -261,8 +304,8 @@ class Star {
     } // 使trackX和trackY快速转过一圈回到屏幕内
 
     // this.trackX = this.trackR * sin((frameCount - this.loc) / 100 - 2 * PI / 3) + width / 2; // 如果不改trackY会有椭圆行星环的效果
-    this.trackX = this.trackR * sin((frameCount - this.loc) / 240 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + width; // sin里面的乘方是为了控制不同轨道的流速
-    this.trackY = this.trackR * cos((frameCount - this.loc) / 240 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + height + (this.trackR - this.dx) ** 1.855 / 880; // 最后括号外的乘方是为了控制轨道的y 
+    this.trackX = this.trackR * sin((frameCount - this.loc) / 250 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + width; // sin里面的乘方是为了控制不同轨道的流速
+    this.trackY = this.trackR * cos((frameCount - this.loc) / 250 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + height + (this.trackR - this.dx) ** 1.855 / 880; // 最后括号外的乘方是为了控制轨道的y 
     this.x = lerp(this.x, this.trackX, 0.028);
     this.y = lerp(this.y, this.trackY, 0.028);
 
@@ -296,8 +339,8 @@ class RailStar {
     this.loc = loc;
     this.dRad = 0;
 
-    this.x = this.trackR * sin((frameCount - this.loc) / 200 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + width;
-    this.y = this.trackR * cos((frameCount - this.loc) / 200 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + height + (this.trackR - this.dx) ** 1.855 / 880;
+    this.x = this.trackR * sin((frameCount - this.loc) / 220 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + width;
+    this.y = this.trackR * cos((frameCount - this.loc) / 220 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + height + (this.trackR - this.dx) ** 1.855 / 880;
 
     this.s = 10; // 星星的边长（暂定）
   }
@@ -327,8 +370,8 @@ class RailStar {
     //   this.dRad += PI * 1.1708 * (this.railR + this.dx / height) ** 0.46;
     // }
 
-    this.trackX = this.trackR * sin((frameCount - this.loc) / 150 / this.railR ** 1.39 - 4 * PI / 5) + width;
-    this.trackY = this.trackR * cos((frameCount - this.loc) / 150 / this.railR ** 1.39 - 4 * PI / 5) + height + (this.trackR - this.dx) ** 1.855 / 880;
+    this.trackX = this.trackR * sin((frameCount - this.loc) / 220 / this.railR ** 1.39 - 4 * PI / 5) + width;
+    this.trackY = this.trackR * cos((frameCount - this.loc) / 220 / this.railR ** 1.39 - 4 * PI / 5) + height + (this.trackR - this.dx) ** 1.855 / 880;
     this.x = lerp(this.x, this.trackX, 0.08);
     this.y = lerp(this.y, this.trackY, 0.08);
 
@@ -342,11 +385,11 @@ function gotHands(results) {
 }
 
 function drawBGStars(x, y, dis) {
-  let jx = noise(x * 0.3, y * 0.3) * dis * 39;
-  let jy = noise(x * 0.3 + 200, y * 0.3 + 200) * dis * 39;
+  let jx = noise(x * 0.3, y * 0.3) * dis * 5;
+  let jy = noise(x * 0.3 + 200, y * 0.3 + 200) * dis * 5;
 
-  fill(starH, 100, 100, 2 * 0.35);
-  circle(x + jx, y + jy, 2);
+  fill(color(233, 20, 80, 0.25));
+  rect(x + jx - 1, y + jy - 1, 2, 2);
 }
 
 function drawRails() {
