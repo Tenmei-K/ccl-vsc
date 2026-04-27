@@ -46,7 +46,7 @@ function setup() {
       railStars.push(new RailStar(railStarLoc, 0.75, 0));
       railStarLoc -= 0.5;
     }
-  }, 1);
+  }, 2);
 
   // create the video and hide it
   video = createCapture(VIDEO, { flipped: true });
