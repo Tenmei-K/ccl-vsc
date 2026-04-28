@@ -120,10 +120,10 @@ function draw() {
 
     // text hint
     fill("white");
-    textSize(18);
+    textSize(20);
     textFont('Courier New');
-    text("👌(pinch index finger & thumb) = ⭐", 18, 33);
-    text("🔊++ = ?", 19.5, 63);
+    text("cam: 👌(pinch index finger & thumb) = ⭐", 18, 33);
+    text("mic: 🔊++ = ?", 20, 63);
 
     if (interactionStart == false) {
       // 重新push一整圈railStars
