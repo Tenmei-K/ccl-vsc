@@ -86,9 +86,7 @@ function draw() {
     }
   }
 
-  if (highestIdx == -1) {
-    console.log("problem");
-  } else if (highestIdx < 35) {
+  if (highestIdx < 35) {
     starCol = color("hsl(202, 85%, 62%)")
   } else if (highestIdx < 105) {
     starCol = color("hsl(71, 74%, 55%)")
