@@ -120,8 +120,8 @@ function draw() {
     fill("white");
     textSize(20);
     textFont('Courier New');
-    text("cam: 👌(pinch index finger & thumb) = ⭐", 22, 37);
-    text("mic: 🔊++ = ?", 22, 67);
+    text("📷: 👌(pinch index finger & thumb) = ⭐", 22, 37);
+    text("🎙️: 🔊++ = ?", 22, 67);
 
     if (interactionStart == false) {
       // 重新push一整圈railStars
@@ -286,7 +286,7 @@ class Star {
     pop();
   }
   update() {
-    this.rotateDeg = - map(this.trackR, 0.78 * height, 1.81 * height, frameCount / 5, frameCount / 8) % 360;
+    this.rotateDeg = - (map(this.trackR, 0.78 * height, 1.81 * height, frameCount / 5, frameCount / 8) % 360);
 
     if ((this.dx > 0 && this.dx > this.dxSave * 20) || (this.dx < 0 && this.dx < this.dxSave * 20)) {
       this.dx = this.dxSave * 20
