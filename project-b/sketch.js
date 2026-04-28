@@ -42,6 +42,7 @@ function setup() {
   mic = new p5.AudioIn();
   mic.start();
   fft = new p5.FFT();
+  fft.setInput(mic);
   for (let i = 0; i < 1024; i++) {
     pitchAvg.push(0);
   }
@@ -88,11 +89,13 @@ function draw() {
     }
   }
 
-  if (highestIdx < 1) {
+  if (highestIdx == -1) {
+    console.log("problem");
+  } else if (highestIdx < 30) {
     starCol = color("hsl(202, 85%, 62%)")
-  } else if (highestIdx < 5) {
+  } else if (highestIdx < 120) {
     starCol = color("hsl(71, 74%, 55%)")
-  } else if (highestIdx < 60) {
+  } else if (highestIdx < 280) {
     starCol = color("hsl(49, 100%, 69%)")
   } else {
     starCol = color("hsl(0, 80%, 72%)")
@@ -122,16 +125,16 @@ function draw() {
     fill("white");
     textSize(20);
     textFont('Courier New');
-    text("cam: 👌(pinch index finger & thumb) = ⭐", 18, 33);
-    text("mic: 🔊++ = ?", 20, 63);
+    text("cam: 👌(pinch index finger & thumb) = ⭐", 22, 37);
+    text("mic: 🔊++ = ?", 22, 67);
 
     if (interactionStart == false) {
       // 重新push一整圈railStars
       railStars = [];
-      for (let loc = 0; loc < 2560; loc += 2.5) {
+      for (let loc = 0; loc < 2880; loc += 2.5) {
         railStars.push(new RailStar(loc, 0.55, loc));
       }
-      for (let loc = 0; loc < 2560; loc += 0.75) {
+      for (let loc = 0; loc < 2880; loc += 0.75) {
         bgRailStars.push(new RailStar(loc, 0.15, loc));
       }
       interactionStart = true;
