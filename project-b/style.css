@@ -10,7 +10,7 @@ canvas {
 }
 
 .text-wrapper {
-  background-color: #031435;
+  background-color: hsl(220, 89%, 11%);
   color: white;
 
   width: 100vw;

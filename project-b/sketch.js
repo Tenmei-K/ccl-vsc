@@ -50,7 +50,7 @@ function setup() {
   // 轨道上星星冒出的过程
   setInterval(function () {
     if (railStarLoc > - 28) { // 这样的设置我们一共有两个
-      railStars.push(new RailStar(railStarLoc, 0.52, 0));
+      railStars.push(new RailStar(railStarLoc, 0.5, 0));
       railStarLoc -= 0.6;
     }
   }, 2);
@@ -71,9 +71,7 @@ function draw() {
   background(220, 88, 11, 1 - abs(map(sin(frameCount / 300), 1, -1, 0.9, -0.9)));
 
   vol = mic.getLevel();
-  // let VOL_THRESHOLD = 0.95 * (1 - vol);
   let VOL_THRESHOLD = 0.4;
-  // console.log(vol);
 
   //【pitch】
   let spectrum = fft.analyze();
@@ -82,7 +80,6 @@ function draw() {
   for (i = 0; i < spectrum.length; i++) {
     pitchAvg[i] = pitchAvg[i] * 0.95 + spectrum[i] * 0.05;
     let delta = spectrum[i] - pitchAvg[i];
-    // vertex(i, map(delta, -127, 127, height, 0));
     if (delta > highestDelta) {
       highestDelta = delta;
       highestIdx = i;
@@ -91,11 +88,11 @@ function draw() {
 
   if (highestIdx == -1) {
     console.log("problem");
-  } else if (highestIdx < 30) {
+  } else if (highestIdx < 35) {
     starCol = color("hsl(202, 85%, 62%)")
-  } else if (highestIdx < 120) {
+  } else if (highestIdx < 105) {
     starCol = color("hsl(71, 74%, 55%)")
-  } else if (highestIdx < 280) {
+  } else if (highestIdx < 285) {
     starCol = color("hsl(49, 100%, 69%)")
   } else {
     starCol = color("hsl(0, 80%, 72%)")
@@ -131,10 +128,10 @@ function draw() {
     if (interactionStart == false) {
       // 重新push一整圈railStars
       railStars = [];
-      for (let loc = 0; loc < 2880; loc += 2.5) {
+      for (let loc = 0; loc < 3150; loc += 2.5) {
         railStars.push(new RailStar(loc, 0.55, loc));
       }
-      for (let loc = 0; loc < 2880; loc += 0.75) {
+      for (let loc = 0; loc < 3150; loc += 0.75) {
         bgRailStars.push(new RailStar(loc, 0.15, loc));
       }
       interactionStart = true;
@@ -201,14 +198,14 @@ function draw() {
       let centerX = (indexFinger.x + thumb.x) / 2;
       let centerY = (indexFinger.y + thumb.y) / 2;
 
-      let s = map(vol, 0, 0.8, 8, 14);
+      let s = map(vol, 0, 0.8, 8, 16);
       if (vol > 0.8) {
-        s = 14;
+        s = 16;
       }
 
       // display two fingers
-      stroke("#ffffff45");
-      fill("#ffffff3c");
+      stroke("#ffffff56");
+      fill("#ffffff46");
       circle(indexFinger.x, indexFinger.y, 18);
       circle(thumb.x, thumb.y, 18);
 
