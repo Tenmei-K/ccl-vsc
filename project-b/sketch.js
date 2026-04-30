@@ -29,9 +29,13 @@ let video;
 let handPose;
 let hands = [];
 
+let secondSound;
+
 function preload() {
   // load the handPose model
   handPose = ml5.handPose({ maxHands: 1, flipped: true });
+  // sounds
+  secondSound = loadSound("assets/unisonSecond.mp3");
 }
 
 function setup() {
@@ -54,6 +58,12 @@ function setup() {
       railStarLoc -= 0.6;
     }
   }, 2);
+  // sound
+  setInterval(function () {
+    if (railStarLoc < -28) {
+      secondSound.play();
+    }
+  }, 1020)
 
   // create the video and hide it
   video = createCapture(VIDEO, { flipped: true });
@@ -104,6 +114,8 @@ function draw() {
   }
 
   if (railStarLoc <= - 28) {
+    // sound
+
     //【bg tiny stars】
     push();
     translate(width, height / 2);
