@@ -10,7 +10,7 @@ let pitchAvg = [];
 let colors = ["hsl(202, 85%, 62%)", "hsl(49, 100%, 69%)", "hsl(0, 80%, 72%)", "hsl(71, 74%, 55%)"]
 // let colors = ["hsl(202, 85%, 57%)", "hsl(49, 100%, 64%)", "hsl(0, 80%, 67%)", "hsl(71, 74%, 50%)"]
 let stars = [];
-let starCol;
+let starCol, starSatu, starBri;
 
 let railRs = [0.8, 1.0, 1.22, 1.45, 1.74];
 
@@ -97,13 +97,25 @@ function draw() {
   }
 
   if (highestIdx < 35) {
-    starCol = color("hsl(202, 85%, 62%)")
+    // starCol = color("#4cb4f0")
+    starCol = 202
+    starSatu = 68
+    starBri = 94
   } else if (highestIdx < 105) {
-    starCol = color("hsl(71, 74%, 55%)")
+    // starCol = color("#c2e137")
+    starCol = 71
+    starSatu = 76
+    starBri = 88
   } else if (highestIdx < 285) {
-    starCol = color("hsl(49, 100%, 69%)")
+    // starCol = color("#ffe261")
+    starCol = 49
+    starSatu = 62
+    starBri = 100
   } else {
-    starCol = color("hsl(0, 80%, 72%)")
+    // starCol = color("#f17e7e")
+    starCol = 0
+    starSatu = 48
+    starBri = 95
   }
 
 
@@ -139,7 +151,7 @@ function draw() {
       // 重新push一整圈railStars
       railStars = [];
       for (let loc = 0; loc < 3150; loc += 2.5) {
-        railStars.push(new RailStar(loc, 0.55, loc));
+        railStars.push(new RailStar(loc, 0.55, loc)); // 如果改这里记得把class Star里的this.alp也改了
       }
       for (let loc = 0; loc < 3150; loc += 0.75) {
         bgRailStars.push(new RailStar(loc, 0.15, loc));
@@ -225,7 +237,8 @@ function draw() {
         starCreatedBooleans[i] = false;
         let dia = map(distance, 0, PINCH_DISTANCE_THRESHOLD, 60, 1);
 
-        fill(starCol);
+        fill(starCol, starSatu, starBri);
+        console.log(starCol, starSatu, starBri)
         rect(centerX - s / 2, centerY - s / 2, s, s);
 
         // star.x = centerX;
@@ -234,7 +247,7 @@ function draw() {
 
       } else {
         if (starCreatedBooleans[i] == false) {
-          stars.push(new Star(centerX, centerY, starCol, s));
+          stars.push(new Star(centerX, centerY, starCol, starSatu, starBri, s));
           starCreatedBooleans[i] = true;
         }
       }
@@ -252,17 +265,19 @@ function draw() {
 }
 
 class Star {
-  constructor(x, y, col, s) { // 只在创建new时运行一次
+  constructor(x, y, col, satu, bri, s) { // 只在创建new时运行一次
     // this.creating = true;
     this.x = x;
     this.y = y;
     this.dx = map(noise(frameCount), 0, 1, -height * 0.03, height * 0.07); // 随机分布值
     this.dxSave = map(noise(frameCount), 0, 1, -height * 0.03, height * 0.07);
     this.col = col;
+    this.satu = satu;
+    this.bri = bri;
+    this.alp = 1;
 
     this.trackX = x;
     this.trackY = y;
-    this.rotateDeg = 0;
 
     this.choice = random(31); // 提供轨道选择比例
     if (this.choice < 4) {
@@ -277,6 +292,7 @@ class Star {
       this.railR = 1.74
     }
     this.trackR = this.railR * height + this.dx; // 加了随机分布值的轨道
+    this.rotateDeg = - (map(this.trackR, 0.78 * height, 1.81 * height, frameCount / 5, frameCount / 8) % 360);
 
     this.s = s; // 星星的边长
     this.sSave = s; // for calculation
@@ -286,7 +302,7 @@ class Star {
   }
   display() {
     if (this.trackX <= width + this.s * 5 && this.trackY <= height + this.s * 10) {
-      fill(this.col);
+      fill(this.col, this.satu, this.bri, this.alp);
     } else {
       noFill();
     }
@@ -298,7 +314,14 @@ class Star {
     pop();
   }
   update() {
-    this.rotateDeg = - (map(this.trackR, 0.78 * height, 1.81 * height, frameCount / 5, frameCount / 8) % 360);
+    // this.rotateDeg = - (map(this.trackR, 0.78 * height, 1.81 * height, frameCount / (5 * (frameCount - this.loc + 600) / 600), frameCount / (8 * (frameCount - this.loc + 600) / 600)) % 360); // 思路对了
+    this.rotateDeg = - (map(this.trackR, 0.78 * height, 1.81 * height, frameCount / (5 * (frameCount - this.loc + 1500) / 1500), frameCount / (8 * (frameCount - this.loc + 1500) / 1500)) % 360); // 思路对了
+    if (frameCount - this.loc > 3000 && this.rotateDeg > -1) {
+      this.rotateDeg = 0;
+    }
+
+    this.satu = lerp(this.satu, map(abs(this.dx), 0, height * 0.18, 10, -5), 0.001);
+    this.alp = lerp(this.alp, map(abs(this.dx), 0, height * 0.18, 0.55, 0.55 / 8), 0.001)
 
     if ((this.dx > 0 && this.dx > this.dxSave * 20) || (this.dx < 0 && this.dx < this.dxSave * 20)) {
       this.dx = this.dxSave * 20
@@ -329,8 +352,6 @@ class RailStar {
     this.dxSave = map(noise(frameCount + i), 0, 1, -height * 0.18, height * 0.18);
     this.col = color(233, map(abs(this.dx), 0, height * 0.18, 10, -5), 100, map(abs(this.dx), 0, height * 0.18, maxA, maxA / 8));
     // this.col = color(0, 0, 100, 0.5);
-
-    this.rotateDeg = 0;
 
     this.choice = random(31); // 提供轨道选择比例
     if (this.choice < 4) {
@@ -398,7 +419,7 @@ function drawBGStars(x, y, dis) {
   let jx = noise(x * 0.3, y * 0.3) * dis * 5;
   let jy = noise(x * 0.3 + 200, y * 0.3 + 200) * dis * 5;
 
-  fill(color(233, 20, 80, 0.25));
+  fill(color(233, 20, 80, 0.45));
   rect(x + jx - 1, y + jy - 1, 2, 2);
 }
 
