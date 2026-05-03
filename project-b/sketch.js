@@ -280,14 +280,11 @@ function draw() {
       let bottomX = (indexFingerB.x + thumbB.x) / 2;
       let bottomY = (indexFingerB.y + thumbB.y) / 2;
 
+      // fill(0, 100, 100)
+      // circle(bottomX, bottomY, 10)
       // calculate angle
-      let fingerAngle = atan((centerY - bottomY) / (centerX - bottomX)); // finger - bottom
-      // if (centerY < bottomY && centerX < bottomX) {
-      //   fingerAngle -= PI;
-      // }
-      // if (centerY < bottomY && centerX > bottomX) {
-      //   fingerAngle += PI;
-      // }
+
+      let fingerAngle = atan2(centerY - bottomY, centerX - bottomX); // finger - bottom
 
       // calculate s of stars
       let s = map(vol, 0, 0.8, 8, 16);
@@ -312,7 +309,7 @@ function draw() {
       } else { // the moment release
 
         if (starCreatedBooleans[i] == false) {
-          stars.push(new Star(centerX, centerY, starCol, starSatu, starBri, s, fingerAngle));
+          stars.push(new Star(centerX, centerY, starCol, starSatu, starBri, s, fingerAngle, centerX, bottomX));
 
           pinchXs[i] = centerX;
           pinchYs[i] = centerY;
@@ -360,7 +357,7 @@ function draw() {
 }
 
 class Star {
-  constructor(x, y, col, satu, bri, s, angle) { // 只在创建new时运行一次
+  constructor(x, y, col, satu, bri, s, angle, cx, bx) { // 只在创建new时运行一次
     // this.creating = true;
     this.x = x;
     this.y = y;
@@ -374,9 +371,16 @@ class Star {
     this.alp = 1;
 
     this.inTrack = false;
-    // this.trackX = x - height * 0.4 / tan(angle);
-    // this.trackY = y + height * 0.4 * tan(angle);
+    if (cx > bx) {
+      this.trackX = x + height * 0.38 / ((1 + tan(angle) ** 2) ** 0.5);
+      this.trackY = y + height * 0.38 * tan(angle) / ((1 + tan(angle) ** 2) ** 0.5);
+    } else {
+      this.trackX = x - height * 0.38 / ((1 + tan(angle) ** 2) ** 0.5);
+      this.trackY = y - height * 0.38 * tan(angle) / ((1 + tan(angle) ** 2) ** 0.5);
+    }
     this.pinchAngle = angle;
+    this.cx = cx; // fingertip x
+    this.bx = bx; // fingerbottom x
 
     if (this.s < 11) {
       this.choice = random(15.1); // 提供轨道选择比例
@@ -451,14 +455,14 @@ class Star {
     // }
 
     // this.rotateDeg -= map(this.trackR, 0.78 * height, 1.81 * height, 1 / 0.12, 1 / 0.08) % 360;
-    if (frameCount - this.loc > 5400 && this.rotateDeg > -10) {
+    if (frameCount - this.loc > 7200 && this.rotateDeg > -10) {
       this.rotateDeg = 0;
     } else {
-      this.rotateDeg = (this.rotateDeg - (map(this.trackR, 0.78 * height, 1.81 * height, 1 / 0.12, 1 / 0.08) * 1 / ((frameCount - this.loc + 150) / 150))) % 360;
+      this.rotateDeg = (this.rotateDeg - (map(this.trackR, 0.78 * height, 1.81 * height, 1 / 0.12, 1 / 0.08) * 1 / ((frameCount - this.loc + 300) / 300))) % 360;
     }
 
-    this.satu = lerp(this.satu, map(abs(this.dx), 0, height * 0.18, 10, -5), 0.0025);
-    this.alp = lerp(this.alp, map(abs(this.dx), 0, height * 0.18, 0.55, 0.55 / 8), 0.0025);
+    this.satu = lerp(this.satu, map(abs(this.dx), 0, height * 0.18, 10, -5), 0.00052);
+    this.alp = lerp(this.alp, map(abs(this.dx), 0, height * 0.18, 0.55, 0.55 / 8), 0.00052);
     if (abs(this.satu - map(abs(this.dx), 0, height * 0.18, 10, -5)) <= 0.1) {
       this.satu = map(abs(this.dx), 0, height * 0.18, 10, -5)
     }
@@ -475,25 +479,39 @@ class Star {
       this.s = this.sSave + 5;
     } // 使星星的边长进大远小
 
-    if (this.trackY > height + this.s * 10 && this.trackX < width) {
+    if (this.y > height + this.s * 10 && this.x < width && this.inTrack == true) {
       // this.dRad += PI * 1.1708 * (this.railR + this.dx / height) ** 0.46;
-      this.dRad += PI * 1.171 * (this.railR + this.dx / height) ** 0.46;
+      this.dRad += PI * 1.16 * (this.railR + this.dx / height) ** 0.46;
     } // 使trackX和trackY快速转过一圈回到屏幕内
 
-    if (this.inTrack == false && this.pinchAngle !== undefined && abs(this.pinchAngle) > 3) {
-      this.trackX = lerp(this.xSave - height * 0.4 / tan(this.pinchAngle), this.trackR * sin((frameCount - this.loc) / 250 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + width, 0.8);
-      this.trackY = lerp(this.ySave + height * 0.4 * tan(this.pinchAngle), this.trackR * cos((frameCount - this.loc) / 250 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + height + (this.trackR - this.dx) ** 1.855 / 880, 0.8);
-      if (frameCount - this.loc >= 50) {
+
+    // if (this.inTrack == false && this.pinchAngle !== undefined && abs(degrees(this.pinchAngle)) > 3) {
+    if (this.inTrack == false) {
+      // this.trackX = lerp(this.xSave - height * 0.38 / tan(this.pinchAngle), this.trackR * sin((frameCount - this.loc) / 250 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + width, 0.05);
+      // this.trackY = lerp(this.ySave + height * 0.38 * tan(this.pinchAngle), this.trackR * cos((frameCount - this.loc) / 250 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + height + (this.trackR - this.dx) ** 1.855 / 880, 0.05);
+
+      if (this.cx > this.bx) {
+        this.trackX = lerp(this.xSave + height * 0.38 / ((1 + tan(this.pinchAngle) ** 2) ** 0.5), this.trackR * sin((frameCount - this.loc) / 250 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + width, 0.3);
+        this.trackY = lerp(this.ySave + height * 0.38 * tan(this.pinchAngle) / ((1 + tan(this.pinchAngle) ** 2) ** 0.5), this.trackR * cos((frameCount - this.loc) / 250 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + height + (this.trackR - this.dx) ** 1.855 / 880, 0.3);
+      } else {
+        this.trackX = lerp(this.xSave - height * 0.38 / ((1 + tan(this.pinchAngle) ** 2) ** 0.5), this.trackR * sin((frameCount - this.loc) / 250 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + width, 0.3);
+        this.trackY = lerp(this.ySave - height * 0.38 * tan(this.pinchAngle) / ((1 + tan(this.pinchAngle) ** 2) ** 0.5), this.trackR * cos((frameCount - this.loc) / 250 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + height + (this.trackR - this.dx) ** 1.855 / 880, 0.3);
+      }
+      if (frameCount - this.loc >= 60) {
         this.inTrack = true;
       }
+      this.x = lerp(this.x, this.trackX, 0.06);
+      this.y = lerp(this.y, this.trackY, 0.06);
     } else { // this.trackX = this.trackR * sin((frameCount - this.loc) / 100 - 2 * PI / 3) + width / 2; // 如果不改trackY会有椭圆行星环的效果
-      this.trackX = this.trackR * sin((frameCount - this.loc) / 250 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + width; // sin里面的乘方是为了控制不同轨道的流速
-      this.trackY = this.trackR * cos((frameCount - this.loc) / 250 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + height + (this.trackR - this.dx) ** 1.855 / 880; // 最后括号外的乘方是为了控制轨道的y 
+      this.inTrack = true;
+      this.trackX = this.trackR * sin((frameCount - this.loc - 5) / 250 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + width; // sin里面的乘方是为了控制不同轨道的流速
+      this.trackY = this.trackR * cos((frameCount - this.loc - 5) / 250 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + height + (this.trackR - this.dx) ** 1.855 / 880; // 最后括号外的乘方是为了控制轨道的y 
+      this.x = lerp(this.x, this.trackX, 0.02);
+      this.y = lerp(this.y, this.trackY, 0.02);
     }
-    this.x = lerp(this.x, this.trackX, 0.02);
-    this.y = lerp(this.y, this.trackY, 0.02);
 
-    // this.protateDeg = this.rotateDeg;
+
+
   }
 }
 
