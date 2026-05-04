@@ -5,7 +5,18 @@ let mic, fft;
 let vol;
 let pvol;
 
-let pitchAvg = [];
+let curImage = 0;
+let exusiais = [];
+let exusiaiY = 0;
+let exusiaiDelY = 0.005;
+let img1, img2, img3, img4, img5;
+let tintA1 = 0;
+let tintA2 = 0;
+let tintA3 = 0;
+let tintA4 = 0;
+let tintA5 = 0;
+
+// let pitchAvg = [];
 
 let colors = ["hsl(202, 85%, 62%)", "hsl(49, 100%, 69%)", "hsl(0, 80%, 72%)", "hsl(71, 74%, 55%)"]
 // let colors = ["hsl(202, 85%, 57%)", "hsl(49, 100%, 64%)", "hsl(0, 80%, 67%)", "hsl(71, 74%, 50%)"]
@@ -19,7 +30,7 @@ let PINCH_DISTANCE_THRESHOLD = 65;
 let starCreatedBooleans = []; // 针对每一只手设定
 
 let railStars = [];
-let railStarLoc = 340;
+let railStarLoc = 340 + 416.5;
 let bgRailStars = [];
 
 let cirA = 1.2;
@@ -37,6 +48,9 @@ let pinchCols = [];
 let pinchSatus = [];
 let pinchAs = [];
 
+let secondSoundSet = false;
+let timePoint;
+let timeSlot = 1060;
 let secondSound, B, C, E, G;
 
 function preload() {
@@ -53,37 +67,56 @@ function preload() {
   // E = loadSound("sounds/Eb.mp3");
   // G = loadSound("sounds/Gb.mp3");
   // rondo = loadSound("sounds/rondo.mp3");
+
+  // images
+  for (let i = 1; i <= 3; i++) {
+    let exusiai = loadImage("assets/exusiai" + i + ".png");
+    exusiais.push(exusiai);
+  }
+
+  img1 = loadImage("assets/1.png");
+  img2 = loadImage("assets/2.png");
+  img3 = loadImage("assets/3.png");
+  img4 = loadImage("assets/4.png");
+  img5 = loadImage("assets/5.png");
 }
 
 function setup() {
   let canvas = createCanvas(windowWidth, windowHeight);
   canvas.parent("p5-canvas-container");
   colorMode(HSB);
+  imageMode(CORNER);
 
   mic = new p5.AudioIn();
   mic.start();
-  fft = new p5.FFT();
-  fft.setInput(mic);
-  for (let i = 0; i < 1024; i++) {
-    pitchAvg.push(0);
-  }
+  // fft = new p5.FFT();
+  // fft.setInput(mic);
+  // for (let i = 0; i < 1024; i++) {
+  //   pitchAvg.push(0);
+  // }
 
   // 轨道上星星冒出的过程
   setInterval(function () {
-    if (railStarLoc > - 48) { // 这样的设置我们一共有three个
+    if (railStarLoc > - 70 + 416.5 && exusiaiY >= height) { // 这样的设置我们一共有four个
       railStars.push(new RailStar(railStarLoc, 0.5, 0));
       railStarLoc -= 0.6;
     }
   }, 2);
   // sound
+  timePoint = millis();
   setInterval(function () {
-    if (railStarLoc < - 48) {
+    if (exusiaiY >= height && railStarLoc >= - 70 + 416.5) {
+      secondSound.play();
+    }
+  }, 180)
+  setInterval(function () {
+    if (railStarLoc < - 70 + 416.5) {
       secondSound.play();
     }
   }, 1060)
   // rondo version
   // setInterval(function () {
-  //   if (railStarLoc < - 48) {
+  //   if (railStarLoc < - 70) {
   //     secondSound.play();
   //   }
   // }, 1250)
@@ -103,15 +136,82 @@ function draw() {
   vol = mic.getLevel();
   let VOL_THRESHOLD = 0.2;
 
-  secondSound.setVolume(1.2)
+  secondSound.setVolume(1.6);
   B.setVolume(0.6);
   C.setVolume(0.6);
   E.setVolume(0.6);
   G.setVolume(0.6);
-
   // if (railStarLoc < -48 && rondo.isPlaying() == false) {
   //   rondo.play()
   // }
+
+
+  // animation
+  if (exusiaiY < height) {
+
+    // if (secondSound.isPlaying() == false && secondSoundSet == false) {
+    if (millis() - timePoint > timeSlot && secondSoundSet == false) {
+      secondSound.play();
+      timePoint = millis()
+      timeSlot -= 92;
+      secondSoundSet = true;
+    }
+    if (secondSound.isPlaying() == false && millis() - timePoint <= timeSlot) {
+      secondSoundSet = false;
+    }
+
+
+    if (frameCount % 30 == 0) {
+      curImage = (curImage + 1) % exusiais.length;
+    }
+    // if (frameCount > 100) {
+    exusiaiDelY *= 1.02;
+    exusiaiY += exusiaiDelY;
+    // }
+    image(exusiais[curImage], width - height / exusiais[curImage].height * exusiais[curImage].width, exusiaiY, height / exusiais[curImage].height * exusiais[curImage].width, height)
+  } else {
+    // images // start at 340 (+ 416.5?)
+    // if (railStarLoc > - 70 && exusiaiY >= height) {
+    if (railStarLoc > - 70 + 416.5) {
+      if (railStarLoc <= 330 + 416.5) {
+        if (B.isPlaying() == false) {
+          B.play();
+        }
+        tintA1 += 0.03
+        tint(100, tintA1)
+        image(img1, width * 5 / 9, 0, width * 4 / 9, width * 4 / 9 * img1.height / img1.width);
+      }
+      if (railStarLoc <= 250 + 416.5) {
+        if (C.isPlaying() == false) {
+          C.play();
+        }
+        tintA2 += 0.03
+        tint(100, tintA2)
+        image(img2, width / 4, 0, width * 3 / 5 - width / 4, (width * 3 / 5 - width / 4) * img2.height / img2.width)
+      }
+      if (railStarLoc <= 170 + 416.5) {
+        if (E.isPlaying() == false) {
+          E.play();
+        }
+        tintA3 += 0.03
+        tint(100, tintA3)
+        image(img3, width * 4 / 7, height - (width * 4 / 5 - width * 4 / 7) * img3.height / img3.width, width * 4 / 5 - width * 4 / 7, (width * 4 / 5 - width * 4 / 7) * img3.height / img3.width)
+      }
+      if (railStarLoc <= 90 + 416.5) {
+        if (G.isPlaying() == false) {
+          G.play();
+        }
+        tintA4 += 0.03
+        tint(100, tintA4)
+        image(img4, width / 7, height - (width * 2 / 3 - width / 7) * img4.height / img4.width, width * 2 / 3 - width / 7, (width * 2 / 3 - width / 7) * img4.height / img4.width)
+      }
+      if (railStarLoc <= 10 + 416.5) {
+        tintA5 += 0.03
+        tint(100, tintA5)
+        image(img5, width * 2 / 3, height - (width * 99 / 100 - width * 2 / 3) * img5.height / img5.width, width * 99 / 100 - width * 2 / 3, (width * 99 / 100 - width * 2 / 3) * img5.height / img5.width)
+      }
+    }
+  }
 
   /*
   //【pitch】
@@ -180,13 +280,11 @@ function draw() {
     railStars[i].display();
   }
 
-  if (railStarLoc <= - 48) {
-    // sound
-
+  if (railStarLoc <= - 70 + 416.5) {
     //【bg tiny stars】
     push();
     translate(width, height / 2);
-    rotate(frameCount / 3200)
+    rotate(frameCount / 3200);
     let dis = width / 39;
     for (let x = - ((width ** 2 + height ** 2) ** 0.5); x < (width ** 2 + height ** 2) ** 0.5; x += dis) {
       for (let y = - ((width ** 2 + height ** 2) ** 0.5); y < (width ** 2 + height ** 2) ** 0.5; y += dis) {
@@ -287,8 +385,8 @@ function draw() {
       let fingerAngle = atan2(centerY - bottomY, centerX - bottomX); // finger - bottom
 
       // calculate s of stars
-      let s = map(vol, 0, 0.8, 8, 16);
-      if (vol > 0.8) {
+      let s = map(vol, 0, 0.7, 8, 16);
+      if (vol > 0.7) {
         s = 16;
       }
 
@@ -481,7 +579,7 @@ class Star {
 
     if (this.y > height + this.s * 10 && this.x < width && this.inTrack == true) {
       // this.dRad += PI * 1.1708 * (this.railR + this.dx / height) ** 0.46;
-      this.dRad += PI * 1.16 * (this.railR + this.dx / height) ** 0.46;
+      this.dRad += PI * 1.14 * (this.railR + this.dx / height) ** 0.46;
     } // 使trackX和trackY快速转过一圈回到屏幕内
 
 

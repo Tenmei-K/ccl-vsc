@@ -290,8 +290,8 @@ function draw() {
       // }
 
       // calculate s of stars
-      let s = map(vol, 0, 0.8, 8, 16);
-      if (vol > 0.8) {
+      let s = map(vol, 0, 0.7, 8, 16);
+      if (vol > 0.7) {
         s = 16;
       }
 
