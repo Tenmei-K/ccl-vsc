@@ -5,7 +5,18 @@ let mic, fft;
 let vol;
 let pvol;
 
-let pitchAvg = [];
+let curImage = 0;
+let exusiais = [];
+let exusiaiY = 0;
+let exusiaiDelY = 0.005;
+let img1, img2, img3, img4, img5;
+let tintA1 = 0;
+let tintA2 = 0;
+let tintA3 = 0;
+let tintA4 = 0;
+let tintA5 = 0;
+
+// let pitchAvg = [];
 
 let colors = ["hsl(202, 85%, 62%)", "hsl(49, 100%, 69%)", "hsl(0, 80%, 72%)", "hsl(71, 74%, 55%)"]
 // let colors = ["hsl(202, 85%, 57%)", "hsl(49, 100%, 64%)", "hsl(0, 80%, 67%)", "hsl(71, 74%, 50%)"]
@@ -19,7 +30,7 @@ let PINCH_DISTANCE_THRESHOLD = 65;
 let starCreatedBooleans = []; // 针对每一只手设定
 
 let railStars = [];
-let railStarLoc = 340;
+let railStarLoc = 340 + 416.5;
 let bgRailStars = [];
 
 let cirA = 1.2;
@@ -37,6 +48,9 @@ let pinchCols = [];
 let pinchSatus = [];
 let pinchAs = [];
 
+let secondSoundSet = false;
+let timePoint;
+let timeSlot = 1060;
 let secondSound, B, C, E, G;
 
 function preload() {
@@ -53,6 +67,18 @@ function preload() {
   // E = loadSound("sounds/Eb.mp3");
   // G = loadSound("sounds/Gb.mp3");
   // rondo = loadSound("sounds/rondo.mp3");
+
+  // images
+  for (let i = 1; i <= 3; i++) {
+    let exusiai = loadImage("assets/exusiai" + i + ".png");
+    exusiais.push(exusiai);
+  }
+
+  img1 = loadImage("assets/1.png");
+  img2 = loadImage("assets/2.png");
+  img3 = loadImage("assets/3.png");
+  img4 = loadImage("assets/4.png");
+  img5 = loadImage("assets/5.png");
 }
 
 function setup() {
@@ -62,22 +88,28 @@ function setup() {
 
   mic = new p5.AudioIn();
   mic.start();
-  fft = new p5.FFT();
-  fft.setInput(mic);
-  for (let i = 0; i < 1024; i++) {
-    pitchAvg.push(0);
-  }
+  // fft = new p5.FFT();
+  // fft.setInput(mic);
+  // for (let i = 0; i < 1024; i++) {
+  //   pitchAvg.push(0);
+  // }
 
   // 轨道上星星冒出的过程
   setInterval(function () {
-    if (railStarLoc > - 48) { // 这样的设置我们一共有three个
+    if (railStarLoc > - 70 + 416.5 && exusiaiY >= height) { // 这样的设置我们一共有four个
       railStars.push(new RailStar(railStarLoc, 0.5, 0));
       railStarLoc -= 0.6;
     }
   }, 2);
   // sound
+  timePoint = millis();
   setInterval(function () {
-    if (railStarLoc < - 48) {
+    if (exusiaiY >= height && railStarLoc >= - 70 + 416.5) {
+      secondSound.play();
+    }
+  }, 180)
+  setInterval(function () {
+    if (railStarLoc < - 70 + 416.5) {
       secondSound.play();
     }
   }, 1060)
@@ -103,7 +135,7 @@ function draw() {
   vol = mic.getLevel();
   let VOL_THRESHOLD = 0.2;
 
-  secondSound.setVolume(1.2)
+  secondSound.setVolume(1.6)
   B.setVolume(0.6);
   C.setVolume(0.6);
   E.setVolume(0.6);
@@ -112,6 +144,76 @@ function draw() {
   // if (railStarLoc < -48 && rondo.isPlaying() == false) {
   //   rondo.play()
   // }
+
+
+
+  // animation
+  if (exusiaiY < height) {
+
+    // if (secondSound.isPlaying() == false && secondSoundSet == false) {
+    if (millis() - timePoint > timeSlot && secondSoundSet == false) { // 到timeSlot后play sound，重置时间记录点，推新slot，单次运行
+      secondSound.play();
+      timePoint = millis()
+      timeSlot -= 92;
+      secondSoundSet = true;
+    }
+    if (secondSound.isPlaying() == false && millis() - timePoint <= timeSlot) {
+      secondSoundSet = false;
+    }
+
+
+    if (frameCount % 30 == 0) {
+      curImage = (curImage + 1) % exusiais.length;
+    }
+    // if (frameCount > 100) {
+    exusiaiDelY *= 1.02;
+    exusiaiY += exusiaiDelY;
+    // }
+    image(exusiais[curImage], width - height / exusiais[curImage].height * exusiais[curImage].width, exusiaiY, height / exusiais[curImage].height * exusiais[curImage].width, height)
+  } else {
+    // images // start at 340 (+ 416.5?)
+    // if (railStarLoc > - 70 && exusiaiY >= height) {
+    if (railStarLoc > - 70 + 416.5) {
+      if (railStarLoc <= 330 + 416.5) {
+        if (B.isPlaying() == false) {
+          B.play();
+        }
+        tintA1 += 0.03
+        tint(100, tintA1)
+        image(img1, width * 5 / 9, 0, width * 4 / 9, width * 4 / 9 * img1.height / img1.width);
+      }
+      if (railStarLoc <= 250 + 416.5) {
+        if (C.isPlaying() == false) {
+          C.play();
+        }
+        tintA2 += 0.03
+        tint(100, tintA2)
+        image(img2, width / 4, 0, width * 3 / 5 - width / 4, (width * 3 / 5 - width / 4) * img2.height / img2.width)
+      }
+      if (railStarLoc <= 170 + 416.5) {
+        if (E.isPlaying() == false) {
+          E.play();
+        }
+        tintA3 += 0.03
+        tint(100, tintA3)
+        image(img3, width * 4 / 7, height - (width * 4 / 5 - width * 4 / 7) * img3.height / img3.width, width * 4 / 5 - width * 4 / 7, (width * 4 / 5 - width * 4 / 7) * img3.height / img3.width)
+      }
+      if (railStarLoc <= 90 + 416.5) {
+        if (G.isPlaying() == false) {
+          G.play();
+        }
+        tintA4 += 0.03
+        tint(100, tintA4)
+        image(img4, width / 7, height - (width * 2 / 3 - width / 7) * img4.height / img4.width, width * 2 / 3 - width / 7, (width * 2 / 3 - width / 7) * img4.height / img4.width)
+      }
+      if (railStarLoc <= 10 + 416.5) {
+        tintA5 += 0.03
+        tint(100, tintA5)
+        image(img5, width * 2 / 3, height - (width * 99 / 100 - width * 2 / 3) * img5.height / img5.width, width * 99 / 100 - width * 2 / 3, (width * 99 / 100 - width * 2 / 3) * img5.height / img5.width)
+      }
+    }
+  }
+
 
   /*
   //【pitch】
@@ -180,9 +282,7 @@ function draw() {
     railStars[i].display();
   }
 
-  if (railStarLoc <= - 48) {
-    // sound
-
+  if (railStarLoc <= - 70 + 416.5) {
     //【bg tiny stars】
     push();
     translate(width, height / 2);
@@ -268,8 +368,6 @@ function draw() {
       // find the index finger tip and thumb tip from the first hand
       let indexFinger = hands[i].index_finger_tip;
       let thumb = hands[i].thumb_tip;
-      let indexFingerB = hands[i].index_finger_mcp;
-      let thumbB = hands[i].thumb_mcp;
 
       // calculate the pinch "distance" between indexFinger and thumb
       let distance = dist(indexFinger.x, indexFinger.y, thumb.x, thumb.y);
@@ -277,17 +375,6 @@ function draw() {
       // get the center (average) of the two fingers
       let centerX = (indexFinger.x + thumb.x) / 2;
       let centerY = (indexFinger.y + thumb.y) / 2;
-      let bottomX = (indexFingerB.x + thumbB.x) / 2;
-      let bottomY = (indexFingerB.y + thumbB.y) / 2;
-
-      // calculate angle
-      let fingerAngle = atan((centerY - bottomY) / (centerX - bottomX)); // finger - bottom
-      // if (centerY < bottomY && centerX < bottomX) {
-      //   fingerAngle -= PI;
-      // }
-      // if (centerY < bottomY && centerX > bottomX) {
-      //   fingerAngle += PI;
-      // }
 
       // calculate s of stars
       let s = map(vol, 0, 0.7, 8, 16);
@@ -480,16 +567,10 @@ class Star {
       this.dRad += PI * 1.16 * (this.railR + this.dx / height) ** 0.46;
     } // 使trackX和trackY快速转过一圈回到屏幕内
 
-    if (this.inTrack == false && this.pinchAngle !== undefined && abs(this.pinchAngle) > 3) {
-      this.trackX = lerp(this.xSave - height * 0.4 / tan(this.pinchAngle), this.trackR * sin((frameCount - this.loc) / 250 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + width, 0.8);
-      this.trackY = lerp(this.ySave + height * 0.4 * tan(this.pinchAngle), this.trackR * cos((frameCount - this.loc) / 250 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + height + (this.trackR - this.dx) ** 1.855 / 880, 0.8);
-      if (frameCount - this.loc >= 50) {
-        this.inTrack = true;
-      }
-    } else { // this.trackX = this.trackR * sin((frameCount - this.loc) / 100 - 2 * PI / 3) + width / 2; // 如果不改trackY会有椭圆行星环的效果
-      this.trackX = this.trackR * sin((frameCount - this.loc) / 250 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + width; // sin里面的乘方是为了控制不同轨道的流速
-      this.trackY = this.trackR * cos((frameCount - this.loc) / 250 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + height + (this.trackR - this.dx) ** 1.855 / 880; // 最后括号外的乘方是为了控制轨道的y 
-    }
+    // this.trackX = this.trackR * sin((frameCount - this.loc) / 100 - 2 * PI / 3) + width / 2; // 如果不改trackY会有椭圆行星环的效果
+    this.trackX = this.trackR * sin((frameCount - this.loc) / 250 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + width; // sin里面的乘方是为了控制不同轨道的流速
+    this.trackY = this.trackR * cos((frameCount - this.loc) / 250 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + height + (this.trackR - this.dx) ** 1.855 / 880; // 最后括号外的乘方是为了控制轨道的y 
+
     this.x = lerp(this.x, this.trackX, 0.02);
     this.y = lerp(this.y, this.trackY, 0.02);
 

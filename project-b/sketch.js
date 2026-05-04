@@ -150,13 +150,13 @@ function draw() {
   if (exusiaiY < height) {
 
     // if (secondSound.isPlaying() == false && secondSoundSet == false) {
-    if (millis() - timePoint > timeSlot && secondSoundSet == false) {
+    if (millis() - timePoint > timeSlot && secondSoundSet == false) { // 到timeSlot后play sound，重置时间记录点，推新slot，单次运行
       secondSound.play();
       timePoint = millis()
       timeSlot -= 92;
       secondSoundSet = true;
     }
-    if (secondSound.isPlaying() == false && millis() - timePoint <= timeSlot) {
+    if (secondSound.isPlaying() == false && millis() - timePoint <= timeSlot) { // reset
       secondSoundSet = false;
     }
 
