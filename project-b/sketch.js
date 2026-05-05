@@ -282,6 +282,7 @@ function draw() {
 
   if (railStarLoc <= - 70 + 416.5) {
     //【bg tiny stars】
+    /*
     push();
     translate(width, height / 2);
     rotate(frameCount / 3200);
@@ -292,6 +293,7 @@ function draw() {
       }
     }
     pop();
+    */
 
     // text hint
     fill("white");
