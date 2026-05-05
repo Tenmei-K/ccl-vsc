@@ -101,7 +101,7 @@ function setup() {
       railStars.push(new RailStar(railStarLoc, 0.5, 0));
       railStarLoc -= 0.6;
     }
-  }, 2);
+  }, 17);
   // sound
   timePoint = millis();
   setInterval(function () {
@@ -128,9 +128,16 @@ function setup() {
 
   // start detecting hands from the webcam video
   handPose.detectStart(video, gotHands);
+
+  // optimization: disable some argument checking for faster execution
+  p5.disableFriendlyErrors = true;
 }
 
+let avg_fps = 0.0;
+
 function draw() {
+  //avg_fps = avg_fps * 0.9 + frameRate() * 0.1;
+  //console.log("fps", avg_fps);
   background(220, 88, 11, 1 - abs(map(sin(frameCount / 300), 1, -1, 0.9, -0.9)));
 
   vol = mic.getLevel();
@@ -282,6 +289,7 @@ function draw() {
 
   if (railStarLoc <= - 70 + 416.5) {
     //【bg tiny stars】
+    /*
     push();
     translate(width, height / 2);
     rotate(frameCount / 3200);
@@ -292,6 +300,7 @@ function draw() {
       }
     }
     pop();
+    */
 
     // text hint
     fill("white");
@@ -527,6 +536,10 @@ class Star {
     this.dRad = 0; // 使trackX和trackY快速回到屏幕内的rad变化值
   }
   display() {
+    // optimization: skip this function if the rect() will be offscreen
+    if (this.x < 0 || this.x > width || this.y < 0 || this.y > height) {
+      return;
+    }
     if (this.trackX <= width + this.s * 5 && this.trackY <= height + this.s * 10) {
       fill(this.col, this.satu, this.bri, this.alp);
     } else {
@@ -645,13 +658,13 @@ class RailStar {
   }
 
   display() {
+    // optimization: skip this function if the rect() will be offscreen
+    if (this.x < 0 || this.x > width || this.y < 0 || this.y > height) {
+      return;
+    }
     fill(this.col);
     noStroke();
-    push();
-    translate(this.x, this.y);
-    // rotate(this.rotateDeg);
-    rect(- this.s / 2, - this.s / 2, this.s, this.s);
-    pop();
+    rect(this.x - this.s / 2, this.y - this.s / 2, this.s, this.s);
   }
 
   update() {
