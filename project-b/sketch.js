@@ -130,7 +130,11 @@ function setup() {
   handPose.detectStart(video, gotHands);
 }
 
+let avg_fps = 0.0;
+
 function draw() {
+  //avg_fps = avg_fps * 0.9 + frameRate() * 0.1;
+  //console.log("fps", avg_fps);
   background(220, 88, 11, 1 - abs(map(sin(frameCount / 300), 1, -1, 0.9, -0.9)));
 
   vol = mic.getLevel();
