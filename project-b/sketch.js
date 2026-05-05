@@ -128,6 +128,9 @@ function setup() {
 
   // start detecting hands from the webcam video
   handPose.detectStart(video, gotHands);
+
+  // optimization: disable some argument checking for faster execution
+  p5.disableFriendlyErrors = true;
 }
 
 let avg_fps = 0.0;
