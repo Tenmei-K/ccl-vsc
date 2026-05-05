@@ -533,6 +533,10 @@ class Star {
     this.dRad = 0; // 使trackX和trackY快速回到屏幕内的rad变化值
   }
   display() {
+    // optimization: skip this function if the rect() will be offscreen
+    if (this.x < 0 || this.x > width || this.y < 0 || this.y > height) {
+      return;
+    }
     if (this.trackX <= width + this.s * 5 && this.trackY <= height + this.s * 10) {
       fill(this.col, this.satu, this.bri, this.alp);
     } else {
@@ -651,6 +655,10 @@ class RailStar {
   }
 
   display() {
+    // optimization: skip this function if the rect() will be offscreen
+    if (this.x < 0 || this.x > width || this.y < 0 || this.y > height) {
+      return;
+    }
     fill(this.col);
     noStroke();
     rect(this.x - this.s / 2, this.y - this.s / 2, this.s, this.s);
