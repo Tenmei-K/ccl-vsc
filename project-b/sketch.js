@@ -101,7 +101,7 @@ function setup() {
       railStars.push(new RailStar(railStarLoc, 0.5, 0));
       railStarLoc -= 0.6;
     }
-  }, 2);
+  }, 17);
   // sound
   timePoint = millis();
   setInterval(function () {
