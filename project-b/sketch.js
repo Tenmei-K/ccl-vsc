@@ -647,11 +647,7 @@ class RailStar {
   display() {
     fill(this.col);
     noStroke();
-    push();
-    translate(this.x, this.y);
-    // rotate(this.rotateDeg);
-    rect(- this.s / 2, - this.s / 2, this.s, this.s);
-    pop();
+    rect(this.x - this.s / 2, this.y - this.s / 2, this.s, this.s);
   }
 
   update() {
