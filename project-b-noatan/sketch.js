@@ -337,8 +337,8 @@ function draw() {
     fill(0, 0, 100, cirA);
     noStroke();
     circle(width / 2, height / 2, cirR);
-    cirA -= 0.032;
-    cirR += 50;
+    cirA -= 0.02;
+    cirR += 39;
     if (cirA <= 0) {
       cirR = 0
     }
@@ -579,8 +579,8 @@ class Star {
     } // 使trackX和trackY快速转过一圈回到屏幕内
 
     // this.trackX = this.trackR * sin((frameCount - this.loc) / 100 - 2 * PI / 3) + width / 2; // 如果不改trackY会有椭圆行星环的效果
-    this.trackX = this.trackR * sin((frameCount - this.loc) / 250 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + width; // sin里面的乘方是为了控制不同轨道的流速
-    this.trackY = this.trackR * cos((frameCount - this.loc) / 250 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + height + (this.trackR - this.dx) ** 1.855 / 880; // 最后括号外的乘方是为了控制轨道的y 
+    this.trackX = this.trackR * sin((frameCount - this.loc) / 400 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + width; // sin里面的乘方是为了控制不同轨道的流速
+    this.trackY = this.trackR * cos((frameCount - this.loc) / 400 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + height + (this.trackR - this.dx) ** 1.855 / 880; // 最后括号外的乘方是为了控制轨道的y 
 
     this.x = lerp(this.x, this.trackX, 0.02);
     this.y = lerp(this.y, this.trackY, 0.02);
@@ -614,8 +614,8 @@ class RailStar {
     this.loc = loc;
     this.dRad = 0;
 
-    this.x = this.trackR * sin((frameCount - this.loc) / 220 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + width;
-    this.y = this.trackR * cos((frameCount - this.loc) / 220 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + height + (this.trackR - this.dx) ** 1.855 / 880;
+    this.x = this.trackR * sin((frameCount - this.loc) / 350 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + width;
+    this.y = this.trackR * cos((frameCount - this.loc) / 350 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + height + (this.trackR - this.dx) ** 1.855 / 880;
 
     this.s = 10; // 星星的边长（暂定）
   }
@@ -641,8 +641,8 @@ class RailStar {
       this.s = 15;
     }
 
-    this.trackX = this.trackR * sin((frameCount - this.loc) / 220 / this.railR ** 1.39 - 4 * PI / 5) + width;
-    this.trackY = this.trackR * cos((frameCount - this.loc) / 220 / this.railR ** 1.39 - 4 * PI / 5) + height + (this.trackR - this.dx) ** 1.855 / 880;
+    this.trackX = this.trackR * sin((frameCount - this.loc) / 350 / this.railR ** 1.39 - 4 * PI / 5) + width;
+    this.trackY = this.trackR * cos((frameCount - this.loc) / 350 / this.railR ** 1.39 - 4 * PI / 5) + height + (this.trackR - this.dx) ** 1.855 / 880;
     this.x = lerp(this.x, this.trackX, 0.08);
     this.y = lerp(this.y, this.trackY, 0.08);
 

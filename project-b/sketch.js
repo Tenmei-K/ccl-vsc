@@ -336,8 +336,8 @@ function draw() {
     fill(0, 0, 100, cirA);
     noStroke();
     circle(width / 2, height / 2, cirR);
-    cirA -= 0.032;
-    cirR += 40;
+    cirA -= 0.02;
+    cirR += 39;
     if (cirA <= 0) {
       cirR = 0;
     };
@@ -601,11 +601,11 @@ class Star {
       // this.trackY = lerp(this.ySave + height * 0.38 * tan(this.pinchAngle), this.trackR * cos((frameCount - this.loc) / 250 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + height + (this.trackR - this.dx) ** 1.855 / 880, 0.05);
 
       if (this.cx > this.bx) {
-        this.trackX = lerp(this.xSave + height * 0.38 / ((1 + tan(this.pinchAngle) ** 2) ** 0.5), this.trackR * sin((frameCount - this.loc) / 250 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + width, 0.3);
-        this.trackY = lerp(this.ySave + height * 0.38 * tan(this.pinchAngle) / ((1 + tan(this.pinchAngle) ** 2) ** 0.5), this.trackR * cos((frameCount - this.loc) / 250 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + height + (this.trackR - this.dx) ** 1.855 / 880, 0.3);
+        this.trackX = lerp(this.xSave + height * 0.38 / ((1 + tan(this.pinchAngle) ** 2) ** 0.5), this.trackR * sin((frameCount - this.loc) / 400 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + width, 0.3);
+        this.trackY = lerp(this.ySave + height * 0.38 * tan(this.pinchAngle) / ((1 + tan(this.pinchAngle) ** 2) ** 0.5), this.trackR * cos((frameCount - this.loc) / 400 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + height + (this.trackR - this.dx) ** 1.855 / 880, 0.3);
       } else {
-        this.trackX = lerp(this.xSave - height * 0.38 / ((1 + tan(this.pinchAngle) ** 2) ** 0.5), this.trackR * sin((frameCount - this.loc) / 250 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + width, 0.3);
-        this.trackY = lerp(this.ySave - height * 0.38 * tan(this.pinchAngle) / ((1 + tan(this.pinchAngle) ** 2) ** 0.5), this.trackR * cos((frameCount - this.loc) / 250 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + height + (this.trackR - this.dx) ** 1.855 / 880, 0.3);
+        this.trackX = lerp(this.xSave - height * 0.38 / ((1 + tan(this.pinchAngle) ** 2) ** 0.5), this.trackR * sin((frameCount - this.loc) / 400 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + width, 0.3);
+        this.trackY = lerp(this.ySave - height * 0.38 * tan(this.pinchAngle) / ((1 + tan(this.pinchAngle) ** 2) ** 0.5), this.trackR * cos((frameCount - this.loc) / 400 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + height + (this.trackR - this.dx) ** 1.855 / 880, 0.3);
       }
       if (frameCount - this.loc >= 60) {
         this.inTrack = true;
@@ -614,8 +614,8 @@ class Star {
       this.y = lerp(this.y, this.trackY, 0.06);
     } else { // this.trackX = this.trackR * sin((frameCount - this.loc) / 100 - 2 * PI / 3) + width / 2; // 如果不改trackY会有椭圆行星环的效果
       this.inTrack = true;
-      this.trackX = this.trackR * sin((frameCount - this.loc - 5) / 250 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + width; // sin里面的乘方是为了控制不同轨道的流速
-      this.trackY = this.trackR * cos((frameCount - this.loc - 5) / 250 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + height + (this.trackR - this.dx) ** 1.855 / 880; // 最后括号外的乘方是为了控制轨道的y 
+      this.trackX = this.trackR * sin((frameCount - this.loc - 5) / 400 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + width; // sin里面的乘方是为了控制不同轨道的流速
+      this.trackY = this.trackR * cos((frameCount - this.loc - 5) / 400 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + height + (this.trackR - this.dx) ** 1.855 / 880; // 最后括号外的乘方是为了控制轨道的y 
       this.x = lerp(this.x, this.trackX, 0.02);
       this.y = lerp(this.y, this.trackY, 0.02);
     }
@@ -650,8 +650,8 @@ class RailStar {
     this.loc = loc;
     this.dRad = 0;
 
-    this.x = this.trackR * sin((frameCount - this.loc) / 220 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + width;
-    this.y = this.trackR * cos((frameCount - this.loc) / 220 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + height + (this.trackR - this.dx) ** 1.855 / 880;
+    this.x = this.trackR * sin((frameCount - this.loc) / 350 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + width;
+    this.y = this.trackR * cos((frameCount - this.loc) / 350 / this.railR ** 1.39 - 4 * PI / 5 + this.dRad) + height + (this.trackR - this.dx) ** 1.855 / 880;
 
     this.s = 10; // 星星的边长（暂定）
   }
@@ -677,8 +677,8 @@ class RailStar {
       this.s = 15;
     }
 
-    this.trackX = this.trackR * sin((frameCount - this.loc) / 220 / this.railR ** 1.39 - 4 * PI / 5) + width;
-    this.trackY = this.trackR * cos((frameCount - this.loc) / 220 / this.railR ** 1.39 - 4 * PI / 5) + height + (this.trackR - this.dx) ** 1.855 / 880;
+    this.trackX = this.trackR * sin((frameCount - this.loc) / 350 / this.railR ** 1.39 - 4 * PI / 5) + width;
+    this.trackY = this.trackR * cos((frameCount - this.loc) / 350 / this.railR ** 1.39 - 4 * PI / 5) + height + (this.trackR - this.dx) ** 1.855 / 880;
     this.x = lerp(this.x, this.trackX, 0.08);
     this.y = lerp(this.y, this.trackY, 0.08);
 
