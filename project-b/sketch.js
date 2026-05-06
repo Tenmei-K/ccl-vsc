@@ -25,12 +25,12 @@ let starCol, starSatu, starBri;
 
 let railRs = [0.8, 1.0, 1.22, 1.45, 1.74];
 
-let PINCH_DISTANCE_THRESHOLD = 65;
+let PINCH_DISTANCE_THRESHOLD = 52;
 // let starCreatingBooleans = []; // 针对每一只手设定
 let starCreatedBooleans = []; // 针对每一只手设定
 
 let railStars = [];
-let railStarLoc = 340 + 416.5;
+let railStarLoc = 320 + 416.5;
 let bgRailStars = [];
 
 let cirA = 1.2;
@@ -97,20 +97,20 @@ function setup() {
 
   // 轨道上星星冒出的过程
   setInterval(function () {
-    if (railStarLoc > - 70 + 416.5 && exusiaiY >= height) { // 这样的设置我们一共有four个
+    if (railStarLoc > - 55 + 416.5 && exusiaiY >= height) { // 这样的设置我们一共有four个
       railStars.push(new RailStar(railStarLoc, 0.5, 0));
       railStarLoc -= 0.6;
     }
-  }, 2);
+  }, 10);
   // sound
   timePoint = millis();
   setInterval(function () {
-    if (exusiaiY >= height && railStarLoc >= - 70 + 416.5) {
+    if (exusiaiY >= height && railStarLoc >= - 55 + 416.5) {
       secondSound.play();
     }
   }, 180)
   setInterval(function () {
-    if (railStarLoc < - 70 + 416.5) {
+    if (railStarLoc < - 55 + 416.5) {
       secondSound.play();
     }
   }, 1060)
@@ -128,10 +128,13 @@ function setup() {
 
   // start detecting hands from the webcam video
   handPose.detectStart(video, gotHands);
+
+  p5.disableFriendlyErrors = true;
 }
 
 function draw() {
-  background(220, 88, 11, 1 - abs(map(sin(frameCount / 300), 1, -1, 0.9, -0.9)));
+  // background(220, 88, 11, 1 - abs(map(sin(frameCount / 300), 1, -1, 0.9, -0.9)));
+  background(220, 88, 11);
 
   vol = mic.getLevel();
   let VOL_THRESHOLD = 0.2;
@@ -153,7 +156,7 @@ function draw() {
     if (millis() - timePoint > timeSlot && secondSoundSet == false) { // 到timeSlot后play sound，重置时间记录点，推新slot，单次运行
       secondSound.play();
       timePoint = millis()
-      timeSlot -= 92;
+      timeSlot -= 85;
       secondSoundSet = true;
     }
     if (secondSound.isPlaying() == false && millis() - timePoint <= timeSlot) { // reset
@@ -172,9 +175,9 @@ function draw() {
   } else {
     // images // start at 340 (+ 416.5?)
     // if (railStarLoc > - 70 && exusiaiY >= height) {
-    if (railStarLoc > - 70 + 416.5) {
+    if (railStarLoc > - 55 + 416.5) {
       if (railStarLoc <= 330 + 416.5) {
-        if (B.isPlaying() == false) {
+        if (B.isPlaying() == false && railStarLoc > 250 + 416.5) {
           B.play();
         }
         tintA1 += 0.03
@@ -182,30 +185,39 @@ function draw() {
         image(img1, width * 5 / 9, 0, width * 4 / 9, width * 4 / 9 * img1.height / img1.width);
       }
       if (railStarLoc <= 250 + 416.5) {
-        if (C.isPlaying() == false) {
+        if (C.isPlaying() == false && railStarLoc > 180 + 416.5) {
           C.play();
         }
         tintA2 += 0.03
         tint(100, tintA2)
         image(img2, width / 4, 0, width * 3 / 5 - width / 4, (width * 3 / 5 - width / 4) * img2.height / img2.width)
       }
-      if (railStarLoc <= 170 + 416.5) {
-        if (E.isPlaying() == false) {
+      if (railStarLoc <= 180 + 416.5) {
+        if (E.isPlaying() == false && railStarLoc > 110 + 416.5) {
           E.play();
         }
         tintA3 += 0.03
         tint(100, tintA3)
         image(img3, width * 4 / 7, height - (width * 4 / 5 - width * 4 / 7) * img3.height / img3.width, width * 4 / 5 - width * 4 / 7, (width * 4 / 5 - width * 4 / 7) * img3.height / img3.width)
       }
-      if (railStarLoc <= 90 + 416.5) {
-        if (G.isPlaying() == false) {
+      if (railStarLoc <= 110 + 416.5) {
+        if (G.isPlaying() == false && railStarLoc > 40 + 416.5) {
           G.play();
         }
         tintA4 += 0.03
         tint(100, tintA4)
         image(img4, width / 7, height - (width * 2 / 3 - width / 7) * img4.height / img4.width, width * 2 / 3 - width / 7, (width * 2 / 3 - width / 7) * img4.height / img4.width)
       }
-      if (railStarLoc <= 10 + 416.5) {
+      if (railStarLoc <= 40 + 416.5 && railStarLoc > - 55 + 416.5) {
+        if (B.isPlaying() == true) {
+          B.stop();
+        }
+        if (C.isPlaying() == true) {
+          C.stop();
+        }
+        if (E.isPlaying() == true) {
+          E.stop();
+        }
         tintA5 += 0.03
         tint(100, tintA5)
         image(img5, width * 2 / 3, height - (width * 99 / 100 - width * 2 / 3) * img5.height / img5.width, width * 99 / 100 - width * 2 / 3, (width * 99 / 100 - width * 2 / 3) * img5.height / img5.width)
@@ -280,7 +292,7 @@ function draw() {
     railStars[i].display();
   }
 
-  if (railStarLoc <= - 70 + 416.5) {
+  if (railStarLoc <= - 55 + 416.5) {
     //【bg tiny stars】
     push();
     translate(width, height / 2);
@@ -325,10 +337,10 @@ function draw() {
     noStroke();
     circle(width / 2, height / 2, cirR);
     cirA -= 0.032;
-    cirR += 50;
+    cirR += 40;
     if (cirA <= 0) {
-      cirR = 0
-    }
+      cirR = 0;
+    };
 
     // 过大声音
     if (vol - pvol > VOL_THRESHOLD) {
@@ -645,13 +657,13 @@ class RailStar {
   }
 
   display() {
-    fill(this.col);
-    noStroke();
-    push();
-    translate(this.x, this.y);
-    // rotate(this.rotateDeg);
-    rect(- this.s / 2, - this.s / 2, this.s, this.s);
-    pop();
+    if (this.x > width + this.s * 10 && this.y > height + this.s * 10) {
+      return
+    } else {
+      fill(this.col);
+      noStroke();
+      rect(this.x - this.s / 2, this.y - this.s / 2, this.s, this.s);
+    }
   }
 
   update() {
