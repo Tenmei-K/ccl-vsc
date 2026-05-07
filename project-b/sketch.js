@@ -30,7 +30,7 @@ let PINCH_DISTANCE_THRESHOLD = 52;
 let starCreatedBooleans = []; // 针对每一只手设定
 
 let railStars = [];
-let railStarLoc = 320 + 416.5;
+let railStarLoc = 340 + 416.5;
 let bgRailStars = [];
 
 let cirA = 1.2;
@@ -315,10 +315,10 @@ function draw() {
     if (interactionStart == false) {
       // 重新push一整圈railStars
       railStars = [];
-      for (let loc = 0; loc < 3200; loc += 2.5) {
+      for (let loc = 0; loc < 4800; loc += 2.5) {
         railStars.push(new RailStar(loc, 0.55, loc)); // 如果改这里记得把class Star里的this.alp也改了
       }
-      for (let loc = 0; loc < 3200; loc += 0.75) {
+      for (let loc = 0; loc < 4800; loc += 0.75) {
         bgRailStars.push(new RailStar(loc, 0.15, loc));
       }
       interactionStart = true;
