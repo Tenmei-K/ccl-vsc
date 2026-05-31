@@ -82,7 +82,7 @@ class Star {
     }
 
     if (this.trackY > height + this.s * 10 && this.trackX < width) {
-      this.dRad += PI * 1.1708 * (this.railR + this.dx / height) ** 0.49;
+      this.dRad += PI * 1.16 * (this.railR + this.dx / height) ** 0.49;
     }
 
     // this.trackX = this.trackR * sin((frameCount - this.loc) / 100 - 2 * PI / 3) + width / 2; // 如果不改trackY会有椭圆行星环的效果
