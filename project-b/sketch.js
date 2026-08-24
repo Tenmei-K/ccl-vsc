@@ -140,7 +140,7 @@ function draw() {
   background(220, 88, 11);
 
   vol = mic.getLevel();
-  let VOL_THRESHOLD = 0.2;
+  let VOL_THRESHOLD = 0.15;
 
   secondSound.setVolume(1.2);
   B.setVolume(0.6);
@@ -217,6 +217,12 @@ function draw() {
         image(img4, width / 7, height - (width * 2 / 3 - width / 7) * img4.height / img4.width, width * 2 / 3 - width / 7, (width * 2 / 3 - width / 7) * img4.height / img4.width)
       }
       if (railStarLoc <= 40 + 416.5) {
+        tintA5 += 0.03
+        tint(100, tintA5)
+        image(img5, width * 2 / 3, height - (width * 99 / 100 - width * 2 / 3) * img5.height / img5.width, width * 99 / 100 - width * 2 / 3, (width * 99 / 100 - width * 2 / 3) * img5.height / img5.width)
+      }
+    } else {
+      if (interactionStart == false) {
         if (B.isPlaying() == true) {
           B.stop();
         }
@@ -226,12 +232,6 @@ function draw() {
         if (E.isPlaying() == true) {
           E.stop();
         }
-        tintA5 += 0.03
-        tint(100, tintA5)
-        image(img5, width * 2 / 3, height - (width * 99 / 100 - width * 2 / 3) * img5.height / img5.width, width * 99 / 100 - width * 2 / 3, (width * 99 / 100 - width * 2 / 3) * img5.height / img5.width)
-      }
-    } else {
-      if (interactionStart == false) {
         tintA1 = 0;
         tintA2 = 0;
         tintA3 = 0;
