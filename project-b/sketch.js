@@ -15,6 +15,10 @@ let tintA2 = 0;
 let tintA3 = 0;
 let tintA4 = 0;
 let tintA5 = 0;
+let A1show = false;
+let A2show = false;
+let A3show = false;
+let A4show = false;
 
 // let pitchAvg = [];
 
@@ -62,11 +66,10 @@ function preload() {
   C = loadSound("sounds/C.mp3");
   E = loadSound("sounds/E.mp3");
   G = loadSound("sounds/G.mp3");
-  // B = loadSound("sounds/Bb.mp3");
-  // C = loadSound("sounds/Cb.mp3");
-  // E = loadSound("sounds/Eb.mp3");
-  // G = loadSound("sounds/Gb.mp3");
-  // rondo = loadSound("sounds/rondo.mp3");
+  B8va = loadSound("sounds/B8va.mp3");
+  C8va = loadSound("sounds/C8va.mp3");
+  E8va = loadSound("sounds/E8va.mp3");
+  G8va = loadSound("sounds/G8va.mp3");
 
   // images
   for (let i = 1; i <= 3; i++) {
@@ -139,11 +142,15 @@ function draw() {
   vol = mic.getLevel();
   let VOL_THRESHOLD = 0.2;
 
-  secondSound.setVolume(1.6);
+  secondSound.setVolume(1.2);
   B.setVolume(0.6);
   C.setVolume(0.6);
   E.setVolume(0.6);
   G.setVolume(0.6);
+  B8va.setVolume(0.6);
+  C8va.setVolume(0.6);
+  E8va.setVolume(0.6);
+  G8va.setVolume(0.6);
   // if (railStarLoc < -48 && rondo.isPlaying() == false) {
   //   rondo.play()
   // }
@@ -153,10 +160,10 @@ function draw() {
   if (exusiaiY < height) {
 
     // if (secondSound.isPlaying() == false && secondSoundSet == false) {
-    if (millis() - timePoint > timeSlot && secondSoundSet == false) { // 到timeSlot后play sound，重置时间记录点，推新slot，单次运行
+    if (millis() - timePoint > timeSlot && secondSoundSet == false) { // millis()到timePoint+timeSlot后:play sound，用millis()重置时间记录点timePoint，推新slot，单次运行
       secondSound.play();
       timePoint = millis()
-      timeSlot -= 85;
+      timeSlot -= 86;
       secondSoundSet = true;
     }
     if (secondSound.isPlaying() == false && millis() - timePoint <= timeSlot) { // reset
@@ -172,10 +179,11 @@ function draw() {
     exusiaiY += exusiaiDelY;
     // }
     image(exusiais[curImage], width - height / exusiais[curImage].height * exusiais[curImage].width, exusiaiY, height / exusiais[curImage].height * exusiais[curImage].width, height)
-  } else {
+
+  } else { // 能天使出屏幕后
+
     // images // start at 340 (+ 416.5?)
-    // if (railStarLoc > - 70 && exusiaiY >= height) {
-    if (railStarLoc > - 55 + 416.5) {
+    if (railStarLoc > - 55 + 416.5) { // 银河动画期间
       if (railStarLoc <= 330 + 416.5) {
         if (B.isPlaying() == false && railStarLoc > 250 + 416.5) {
           B.play();
@@ -198,7 +206,7 @@ function draw() {
         }
         tintA3 += 0.03
         tint(100, tintA3)
-        image(img3, width * 4 / 7, height - (width * 4 / 5 - width * 4 / 7) * img3.height / img3.width, width * 4 / 5 - width * 4 / 7, (width * 4 / 5 - width * 4 / 7) * img3.height / img3.width)
+        image(img3, width * 5 / 9, height - (width * 4 / 5 - width * 5 / 9) * img3.height / img3.width, width * 4 / 5 - width * 5 / 9, (width * 4 / 5 - width * 5 / 9) * img3.height / img3.width)
       }
       if (railStarLoc <= 110 + 416.5) {
         if (G.isPlaying() == false && railStarLoc > 40 + 416.5) {
@@ -208,7 +216,7 @@ function draw() {
         tint(100, tintA4)
         image(img4, width / 7, height - (width * 2 / 3 - width / 7) * img4.height / img4.width, width * 2 / 3 - width / 7, (width * 2 / 3 - width / 7) * img4.height / img4.width)
       }
-      if (railStarLoc <= 40 + 416.5 && railStarLoc > - 55 + 416.5) {
+      if (railStarLoc <= 40 + 416.5) {
         if (B.isPlaying() == true) {
           B.stop();
         }
@@ -222,46 +230,81 @@ function draw() {
         tint(100, tintA5)
         image(img5, width * 2 / 3, height - (width * 99 / 100 - width * 2 / 3) * img5.height / img5.width, width * 99 / 100 - width * 2 / 3, (width * 99 / 100 - width * 2 / 3) * img5.height / img5.width)
       }
+    } else {
+      if (interactionStart == false) {
+        tintA1 = 0;
+        tintA2 = 0;
+        tintA3 = 0;
+        tintA4 = 0;
+      }
     }
+
+    if (stars.length > 0 && interactionStart == true) {
+
+      if (stars.length % 16 == 4 && tintA1 <= 1 && A1show == false) {
+        tintA1 += 0.05
+      }
+      if (stars.length % 16 == 8 && tintA2 <= 1 && A2show == false) {
+        tintA2 += 0.05
+      }
+      if (stars.length % 16 == 12 && tintA3 <= 1 && A3show == false) {
+        tintA3 += 0.05
+      }
+      if (stars.length % 16 == 0 && tintA4 <= 1 && A4show == false) {
+        tintA4 += 0.05
+      }
+
+      if (tintA1 > 1) {
+        A1show = true
+      }
+      if (tintA2 > 1) {
+        A2show = true
+      }
+      if (tintA3 > 1) {
+        A3show = true
+      }
+      if (tintA4 > 1) {
+        A4show = true
+      }
+
+      if (tintA1 > 0 && A1show == true) {
+        tintA1 -= 0.01
+        tint(100, tintA1)
+        image(img1, width * 5 / 9, 0, width * 4 / 9, width * 4 / 9 * img1.height / img1.width);
+      }
+      if (tintA2 > 0 && A2show == true) {
+        tintA2 -= 0.01
+        tint(100, tintA2)
+        image(img2, width / 4, 0, width * 3 / 5 - width / 4, (width * 3 / 5 - width / 4) * img2.height / img2.width)
+      }
+      if (tintA3 > 0 && A3show == true) {
+        tintA3 -= 0.01
+        tint(100, tintA3)
+        image(img3, width * 5 / 9, height - (width * 4 / 5 - width * 5 / 9) * img3.height / img3.width, width * 4 / 5 - width * 5 / 9, (width * 4 / 5 - width * 5 / 9) * img3.height / img3.width)
+      } 
+      if (tintA4 > 0 && A4show == true) {
+        tintA4 -= 0.01
+        tint(100, tintA4)
+        image(img4, width / 7, height - (width * 2 / 3 - width / 7) * img4.height / img4.width, width * 2 / 3 - width / 7, (width * 2 / 3 - width / 7) * img4.height / img4.width)
+      }
+
+      if (tintA1 < 0 && stars.length % 16 != 4) {
+        A1show = false
+      }
+      if (tintA2 < 0 && stars.length % 16 != 8) {
+        A2show = false
+      }
+      if (tintA3 < 0 && stars.length % 16 != 12) {
+        A3show = false
+      }
+      if (tintA4 < 0 && stars.length % 16 != 0) {
+        A4show = false
+      }
+
+    }
+
   }
 
-  /*
-  //【pitch】
-  let spectrum = fft.analyze();
-  let highestIdx = -1;
-  let highestDelta = 0;
-  for (i = 0; i < spectrum.length; i++) {
-    pitchAvg[i] = pitchAvg[i] * 0.95 + spectrum[i] * 0.05;
-    let delta = spectrum[i] - pitchAvg[i];
-    if (delta > highestDelta) {
-      highestDelta = delta;
-      highestIdx = i;
-    }
-  }
-  */
-  /*
-  if (highestIdx < 35) {
-    // starCol = color("#4cb4f0")
-    starCol = 202
-    starSatu = 68
-    starBri = 94
-  } else if (highestIdx < 75) {
-    // starCol = color("#c2e137")
-    starCol = 71
-    starSatu = 76
-    starBri = 88
-  } else if (highestIdx < 255) {
-    // starCol = color("#ffe261")
-    starCol = 49
-    starSatu = 62
-    starBri = 100
-  } else {
-    // starCol = color("#f17e7e")
-    starCol = 0
-    starSatu = 48
-    starBri = 95
-  }
-  */
 
   if (stars.length % 4 == 0) {
     // starCol = color("#4cb4f0")
@@ -428,17 +471,29 @@ function draw() {
           pinchCols[i] = starCol;
           pinchSatus[i] = starSatu - 20;
 
-          if (stars.length % 4 == 1) {
+          if (stars.length % 16 == 1 || stars.length % 16 == 5 || stars.length % 16 == 9) {
             let sound = B
             sound.play()
-          } else if (stars.length % 4 == 2) {
+          } else if (stars.length % 16 == 2 || stars.length % 16 == 6 || stars.length % 16 == 10) {
             let sound = C
             sound.play()
-          } else if (stars.length % 4 == 3) {
+          } else if (stars.length % 16 == 3 || stars.length % 16 == 7 || stars.length % 16 == 11) {
             let sound = E
             sound.play()
-          } else {
+          } else if (stars.length % 16 == 4 || stars.length % 16 == 8 || stars.length % 16 == 12) {
             let sound = G
+            sound.play()
+          } else if (stars.length % 16 == 13) {
+            let sound = B8va
+            sound.play()
+          } else if (stars.length % 16 == 14) {
+            let sound = C8va
+            sound.play()
+          } else if (stars.length % 16 == 15) {
+            let sound = E8va
+            sound.play()
+          } else {
+            let sound = G8va
             sound.play()
           }
           starCreatedBooleans[i] = true;
