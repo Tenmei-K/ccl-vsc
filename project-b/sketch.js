@@ -29,7 +29,7 @@ let starCol, starSatu, starBri;
 
 let railRs = [0.8, 1.0, 1.22, 1.45, 1.74];
 
-let PINCH_DISTANCE_THRESHOLD = 52;
+let PINCH_DISTANCE_THRESHOLD = 45;
 // let starCreatingBooleans = []; // 针对每一只手设定
 let starCreatedBooleans = []; // 针对每一只手设定
 
@@ -239,19 +239,19 @@ function draw() {
       }
     }
 
-    if (stars.length > 0 && interactionStart == true) {
+    if (stars.length > 0 && interactionStart == true) { // interaction期间
 
       if (stars.length % 16 == 4 && tintA1 <= 1 && A1show == false) {
-        tintA1 += 0.05
+        tintA1 += 0.03
       }
       if (stars.length % 16 == 8 && tintA2 <= 1 && A2show == false) {
-        tintA2 += 0.05
+        tintA2 += 0.03
       }
       if (stars.length % 16 == 12 && tintA3 <= 1 && A3show == false) {
-        tintA3 += 0.05
+        tintA3 += 0.03
       }
       if (stars.length % 16 == 0 && tintA4 <= 1 && A4show == false) {
-        tintA4 += 0.05
+        tintA4 += 0.03
       }
 
       if (tintA1 > 1) {
