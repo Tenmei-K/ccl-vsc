@@ -336,6 +336,18 @@ function draw() {
   }
 
   if (railStarLoc <= - 55 + 416.5) {
+    //【bg tiny stars】
+    push();
+    translate(width, height / 2);
+    rotate(frameCount / 3200);
+    let dis = width / 39;
+    for (let x = - ((width ** 2 + height ** 2) ** 0.5); x < (width ** 2 + height ** 2) ** 0.5; x += dis) {
+      for (let y = - ((width ** 2 + height ** 2) ** 0.5); y < (width ** 2 + height ** 2) ** 0.5; y += dis) {
+        drawBGStars(x, y, dis)
+      }
+    }
+    pop();
+
 
     if (interactionStart == false) {
       // 重新push一整圈railStars
@@ -397,7 +409,6 @@ function draw() {
   //【ml5】&【draw stars】
 
   // if there is at least one hand
-  /* 
   if (hands.length > 0 && interactionStart == true) {
 
     for (let i = 0; i < hands.length; i++) {
@@ -493,7 +504,6 @@ function draw() {
       }
     }
   }
-  */
 
 
   // 【draw front stars】
@@ -728,6 +738,14 @@ class RailStar {
 function gotHands(results) {
   // save the output to the hands variable
   hands = results;
+}
+
+function drawBGStars(x, y, dis) {
+  let jx = noise(x * 0.3, y * 0.3) * dis * 5;
+  let jy = noise(x * 0.3 + 200, y * 0.3 + 200) * dis * 5;
+
+  fill(color(233, 20, 80, 0.38));
+  rect(x + jx - 1, y + jy - 1, 2, 2);
 }
 
 function drawRails() {
