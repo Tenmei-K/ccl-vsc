@@ -29,7 +29,7 @@ let starCol, starSatu, starBri;
 
 let railRs = [0.8, 1.0, 1.22, 1.45, 1.74];
 
-let PINCH_DISTANCE_THRESHOLD = 45;
+let PINCH_DISTANCE_THRESHOLD = 52;
 // let starCreatingBooleans = []; // 针对每一只手设定
 let starCreatedBooleans = []; // 针对每一只手设定
 
