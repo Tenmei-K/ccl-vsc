@@ -29,7 +29,7 @@ let starCol, starSatu, starBri;
 
 let railRs = [0.8, 1.0, 1.22, 1.45, 1.74];
 
-let PINCH_DISTANCE_THRESHOLD = 52;
+let PINCH_DISTANCE_THRESHOLD = 50;
 // let starCreatingBooleans = []; // 针对每一只手设定
 let starCreatedBooleans = []; // 针对每一只手设定
 
@@ -160,7 +160,7 @@ function draw() {
   if (exusiaiY < height) {
 
     // if (secondSound.isPlaying() == false && secondSoundSet == false) {
-    if (millis() - timePoint > timeSlot && secondSoundSet == false) { // millis()到timePoint+timeSlot后:play sound，用millis()重置时间记录点timePoint，推新slot，单次运行
+    if (millis() - timePoint > timeSlot && secondSoundSet == false) { // millis()到timePoint + timeSlot后:play sound，用millis()重置时间记录点timePoint，推新slot，单次运行
       secondSound.play();
       timePoint = millis()
       timeSlot -= 86;
@@ -380,15 +380,17 @@ function draw() {
     };
 
     // 过大声音
-    if (vol - pvol > VOL_THRESHOLD) {
+    // console.log(vol)
+    // VOL_THRESHOLD = 0.15
+    if (vol - pvol > VOL_THRESHOLD || (vol > 0.3 && pvol > 0.3)) {
       for (let i = 0; i < bgRailStars.length; i++) {
-        bgRailStars[i].dx *= map(vol - pvol + VOL_THRESHOLD, 0, 0.1, 1, 4)
+        bgRailStars[i].dx *= map(vol - pvol + VOL_THRESHOLD, 0, 0.1, 1, 20)
       }
       for (let i = 0; i < railStars.length; i++) {
-        railStars[i].dx *= map(vol - pvol + VOL_THRESHOLD, 0, 0.1, 1, 4)
+        railStars[i].dx *= map(vol - pvol + VOL_THRESHOLD, 0, 0.1, 1, 20)
       }
       for (let i = 0; i < stars.length; i++) {
-        stars[i].dx *= map(vol - pvol + VOL_THRESHOLD, 0, 0.1, 1, 4)
+        stars[i].dx *= map(vol - pvol + VOL_THRESHOLD, 0, 0.1, 1, 20)
       }
     } else {
       for (let i = 0; i < bgRailStars.length; i++) {
@@ -541,49 +543,49 @@ class Star {
     this.cx = cx; // fingertip x
     this.bx = bx; // fingerbottom x
 
+    this.s = s; // 星星的边长
+    this.sSave = s; // for calculation
+    this.loc = frameCount; // record when the star is drawn and where it should be accordingly
+
     if (this.s < 11) {
       this.choice = random(15.1); // 提供轨道选择比例
       if (this.choice < 4) {
-        this.railR = 0.8
+        this.railR = 1.74
       } else if (this.choice >= 4 && this.choice < 4 + 5) {
-        this.railR = 1.0
+        this.railR = 1.45
       } else {
         this.railR = 1.22
       }
     } else if (this.s < 14) {
       this.choice = random(18.3); // 提供轨道选择比例
       if (this.choice < 5) {
-        this.railR = 1.0
+        this.railR = 1.45
       } else if (this.choice >= 5 && this.choice < 5 + 6.1) {
         this.railR = 1.22
       } else {
-        this.railR = 1.45
+        this.railR = 1.0
       }
     } else if (this.s < 17) {
       this.choice = random(22); // 提供轨道选择比例
       if (this.choice < 6.1) {
         this.railR = 1.22
       } else if (this.choice >= 6.1 && this.choice < 6.1 + 7.2) {
-        this.railR = 1.45
+        this.railR = 1.0
       } else {
-        this.railR = 1.74
+        this.railR = 0.8
       }
     } else {
       this.choice = random(15.9); // 提供轨道选择比例
       if (this.choice < 7.2) {
-        this.railR = 1.45
+        this.railR = 1.0
       } else {
-        this.railR = 1.74
+        this.railR = 0.8
       }
     }
 
     this.trackR = this.railR * height + this.dx; // 加了随机分布值的轨道
     // this.rotateDeg = - (map(this.trackR, 0.78 * height, 1.81 * height, frameCount / 0.12, frameCount / 0.08) % 360);
     this.rotateDeg = 0;
-
-    this.s = s; // 星星的边长
-    this.sSave = s; // for calculation
-    this.loc = frameCount; // record when the star is drawn and where it should be accordingly
 
     this.dRad = 0; // 使trackX和trackY快速回到屏幕内的rad变化值
   }
@@ -620,13 +622,13 @@ class Star {
       this.rotateDeg = (this.rotateDeg - (map(this.trackR, 0.78 * height, 1.81 * height, 1 / 0.12, 1 / 0.08) * 1 / ((frameCount - this.loc + 300) / 300))) % 360;
     }
 
-    this.satu = lerp(this.satu, map(abs(this.dx), 0, height * 0.18, 10, -5), 0.00052);
-    this.alp = lerp(this.alp, map(abs(this.dx), 0, height * 0.18, 0.55, 0.55 / 8), 0.00052);
-    if (abs(this.satu - map(abs(this.dx), 0, height * 0.18, 10, -5)) <= 0.1) {
-      this.satu = map(abs(this.dx), 0, height * 0.18, 10, -5)
+    this.satu = lerp(this.satu, map(abs(this.dxSave), 0, height * 0.18, 10, -5), 0.0004);
+    this.alp = lerp(this.alp, map(abs(this.dxSave), 0, height * 0.18, 0.55, 0.55 / 8), 0.0004);
+    if (abs(this.satu - map(abs(this.dxSave), 0, height * 0.18, 10, -5)) <= 0.1) {
+      this.satu = map(abs(this.dxSave), 0, height * 0.18, 10, -5)
     }
-    if (abs(this.alp - map(abs(this.dx), 0, height * 0.18, 0.55, 0.55 / 8)) <= 0.1) {
-      this.alp = map(abs(this.dx), 0, height * 0.18, 0.55, 0.55 / 8)
+    if (abs(this.alp - map(abs(this.dxSave), 0, height * 0.18, 0.55, 0.55 / 8)) <= 0.1) {
+      this.alp = map(abs(this.dxSave), 0, height * 0.18, 0.55, 0.55 / 8)
     }
 
     if ((this.dx > 0 && this.dx > this.dxSave * 20) || (this.dx < 0 && this.dx < this.dxSave * 20)) {
@@ -679,7 +681,9 @@ class RailStar {
   constructor(loc, maxA, i) { // 只在创建new时运行一次
     this.dx = map(noise(frameCount + i), 0, 1, -height * 0.18, height * 0.18); // 随机分布值
     this.dxSave = map(noise(frameCount + i), 0, 1, -height * 0.18, height * 0.18);
-    this.col = color(233, map(abs(this.dx), 0, height * 0.18, 10, -5), 100, map(abs(this.dx), 0, height * 0.18, maxA, maxA / 8));
+    this.alpha = map(abs(this.dx), 0, height * 0.18, maxA, maxA / 8);
+    this.alphaSave = map(abs(this.dx), 0, height * 0.18, maxA, maxA / 8);
+    this.col = color(233, map(abs(this.dx), 0, height * 0.18, 10, -5), 100, this.alpha);
     // this.col = color(0, 0, 100, 0.5);
 
     this.choice = random(31); // 提供轨道选择比例
@@ -717,9 +721,21 @@ class RailStar {
 
   update() {
 
-    if ((this.dx > 0 && this.dx > this.dxSave * 20) || (this.dx < 0 && this.dx < this.dxSave * 20)) {
-      this.dx = this.dxSave * 20
+    // if ((this.dx > 0 && this.dx > this.dxSave && this.dx < this.dxSave * 1.5) || (this.dx < 0 && this.dx < this.dxSave && this.dx < this.dxSave * 1.5)) {
+    //   this.dx = this.dxSave * 20
+    // }
+    if ((this.dx > 0 && this.dx > this.dxSave * 3) || (this.dx < 0 && this.dx < this.dxSave * 3)) {
+      this.dx = this.dxSave * 3
     }
+    if ((this.dx > 0 && this.dx > this.dxSave) || (this.dx < 0 && this.dx < this.dxSave)) {
+      this.alpha += 0.05
+      if (this.alpha > this.alphaSave * 1.5) {
+        this.alpha = 1.5 * this.alphaSave
+      }
+    }
+    // if ((this.dx > 0 && this.dx > this.dxSave * 8) || (this.dx < 0 && this.dx < this.dxSave * 8)) {
+    //   this.dx = this.dxSave * 8
+    // }
 
     this.s = map(this.y, -this.s * 10, height + this.s * 10, 6, 15)
     if (this.y > height + this.s * 10 || this.trackX > width) {
@@ -728,8 +744,8 @@ class RailStar {
 
     this.trackX = this.trackR * sin((frameCount - this.loc) / 350 / this.railR ** 1.39 - 4 * PI / 5) + width;
     this.trackY = this.trackR * cos((frameCount - this.loc) / 350 / this.railR ** 1.39 - 4 * PI / 5) + height + (this.trackR - this.dx) ** 1.855 / 880;
-    this.x = lerp(this.x, this.trackX, 0.08);
-    this.y = lerp(this.y, this.trackY, 0.08);
+    this.x = lerp(this.x, this.trackX, 0.15);
+    this.y = lerp(this.y, this.trackY, 0.15);
 
   }
 }
