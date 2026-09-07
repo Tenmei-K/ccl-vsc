@@ -70,7 +70,7 @@ function preload() {
 
   // images
   for (let i = 1; i <= 3; i++) {
-    let exusiai = loadImage("assets/exusiai" + i + ".png");
+    let exusiai = loadImage("assets/exusiai" + i + ".PNG");
     exusiais.push(exusiai);
   }
 
