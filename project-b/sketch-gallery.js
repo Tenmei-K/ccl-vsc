@@ -59,7 +59,7 @@ let secondSound, B, C, E, G;
 
 function preload() {
   // load the handPose model
-  handPose = ml5.handPose({ maxHands: 2, flipped: true });
+  handPose = ml5.handPose({ maxHands: 2 });
   // sounds
   secondSound = loadSound("sounds/second.wav");
   B = loadSound("sounds/B.mp3");
@@ -125,7 +125,7 @@ function setup() {
   // }, 1250)
 
   // create the video and hide it
-  video = createCapture(VIDEO, { flipped: true });
+  video = createCapture(VIDEO);
   video.size(windowWidth, windowWidth * 480 / 640);
   video.hide();
 
@@ -281,7 +281,7 @@ function draw() {
         tintA3 -= 0.01
         tint(100, tintA3)
         image(img3, width * 5 / 9, height - (width * 4 / 5 - width * 5 / 9) * img3.height / img3.width, width * 4 / 5 - width * 5 / 9, (width * 4 / 5 - width * 5 / 9) * img3.height / img3.width)
-      } 
+      }
       if (tintA4 > 0 && A4show == true) {
         tintA4 -= 0.01
         tint(100, tintA4)
@@ -425,9 +425,9 @@ function draw() {
 
       // get the center (average) of the two fingers
       let centerX = (indexFinger.x + thumb.x) / 2;
-      let centerY = (indexFinger.y + thumb.y) / 2;
+      let centerY = height - (indexFinger.y + thumb.y) / 2;
       let bottomX = (indexFingerB.x + thumbB.x) / 2;
-      let bottomY = (indexFingerB.y + thumbB.y) / 2;
+      let bottomY = height - (indexFingerB.y + thumbB.y) / 2;
 
       // fill(0, 100, 100)
       // circle(bottomX, bottomY, 10)
@@ -444,8 +444,8 @@ function draw() {
       // display two fingers
       stroke("#ffffff56");
       fill("#ffffff46");
-      circle(indexFinger.x, indexFinger.y, 18);
-      circle(thumb.x, thumb.y, 18);
+      circle(indexFinger.x, height - indexFinger.y, 18);
+      circle(thumb.x, height - thumb.y, 18);
 
 
       if (distance < PINCH_DISTANCE_THRESHOLD) {
@@ -504,6 +504,14 @@ function draw() {
           circle(pinchXs[i], pinchYs[i], pinchRs[i])
         }
       }
+
+    }
+  }
+
+  // 【splice stars】
+  for (let i = stars.length - 1; i >= 0; i--) {
+    if (stars[i].satu < 15) {
+      stars.splice(i, 1);
     }
   }
 
