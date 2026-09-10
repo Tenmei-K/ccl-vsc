@@ -20,7 +20,7 @@ let A2show = false;
 let A3show = false;
 let A4show = false;
 
-// let pitchAvg = [];
+// let pitchAvg = []; 
 
 let colors = ["hsl(202, 85%, 62%)", "hsl(49, 100%, 69%)", "hsl(0, 80%, 72%)", "hsl(71, 74%, 55%)"]
 // let colors = ["hsl(202, 85%, 57%)", "hsl(49, 100%, 64%)", "hsl(0, 80%, 67%)", "hsl(71, 74%, 50%)"]
@@ -29,7 +29,7 @@ let starCol, starSatu, starBri;
 
 let railRs = [0.8, 1.0, 1.22, 1.45, 1.74];
 
-let PINCH_DISTANCE_THRESHOLD = 50;
+let PINCH_DISTANCE_THRESHOLD = 36;
 // let starCreatingBooleans = []; // 针对每一只手设定
 let starCreatedBooleans = []; // 针对每一只手设定
 
@@ -140,7 +140,7 @@ function draw() {
   background(220, 88, 11);
 
   vol = mic.getLevel();
-  let VOL_THRESHOLD = 0.15;
+  let VOL_THRESHOLD = 0.1;
 
   secondSound.setVolume(1.2);
   B.setVolume(0.6);
@@ -382,7 +382,7 @@ function draw() {
     // 过大声音
     // console.log(vol)
     // VOL_THRESHOLD = 0.15
-    if (vol - pvol > VOL_THRESHOLD || (vol > 0.3 && pvol > 0.3)) {
+    if (vol - pvol > VOL_THRESHOLD || (vol > 0.33 && pvol > 0.33)) {
       for (let i = 0; i < bgRailStars.length; i++) {
         bgRailStars[i].dx *= map(vol - pvol + VOL_THRESHOLD, 0, 0.1, 1, 20)
       }
@@ -447,7 +447,7 @@ function draw() {
       circle(indexFinger.x, height - indexFinger.y, 18);
       circle(thumb.x, height - thumb.y, 18);
 
-
+      
       if (distance < PINCH_DISTANCE_THRESHOLD) {
         // pinched!
         starCreatedBooleans[i] = false;
@@ -504,17 +504,15 @@ function draw() {
           circle(pinchXs[i], pinchYs[i], pinchRs[i])
         }
       }
-
     }
   }
 
-  // 【splice stars】
-  for (let i = stars.length - 1; i >= 0; i--) {
-    if (stars[i].satu < 15) {
+  // [splice stars]
+  for (let i = stars.length - 1; i>= 0; i--) {
+    if (stars[i].satu < 18) {
       stars.splice(i, 1);
     }
   }
-
 
   // 【draw front stars】
   for (let i = 0; i < stars.length; i++) {
