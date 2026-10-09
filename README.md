@@ -1,7 +1,7 @@
 # CCLab page
 <br>
 <br>
-<h2>2026.1-2026-5</h2>
+<h2>2026.1-2026.5</h2>
 <br>
 
 ![toumei-banner](Toumei_na_Palette.webp)
